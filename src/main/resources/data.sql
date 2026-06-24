@@ -1,0 +1,18 @@
+INSERT INTO users (id, email, password, first_name, last_name, role) VALUES (1, 'ion.ionescu@medical.ro', '123456', 'Ion', 'Ionescu', 'DOCTOR');
+INSERT INTO users (id, email, password, first_name, last_name, role) VALUES (2, 'marin.marinescu@medical.ro', '123456', 'Marin', 'Marinescu', 'DOCTOR');
+INSERT INTO users (id, email, password, first_name, last_name, role) VALUES (3, 'vasile.vasilescu@medical.ro', '123456', 'Vasile', 'Vasilescu', 'DOCTOR');
+INSERT INTO users (id, email, password, first_name, last_name, role) VALUES (4, 'constantin.constantinescu@medical.ro', '123456', 'Constantin', 'Constantinescu', 'DOCTOR');
+INSERT INTO users (id, email, password, first_name, last_name, role) VALUES (5, 'andrei.andreiescu@medical.ro', '123456', 'Andrei', 'Andreiescu', 'DOCTOR');
+INSERT INTO users (id, email, password, first_name, last_name, role) VALUES (6, 'admin@medicalplatform.ro', 'admin1', 'Admin', 'Platforma', 'ADMIN');
+INSERT INTO doctors (id, user_id, license_number) VALUES (1, 1, 'B-99123-II');
+INSERT INTO doctors (id, user_id, license_number) VALUES (2, 2, 'B-45612-MM');
+INSERT INTO doctors (id, user_id, license_number) VALUES (3, 3, 'CJ-77312-VV');
+INSERT INTO doctors (id, user_id, license_number) VALUES (4, 4, 'TM-11204-CC');
+INSERT INTO doctors (id, user_id, license_number) VALUES (5, 5, 'IS-55421-AA');
+INSERT INTO doctor_specializations (doctor_id, specializations) VALUES (1, 'CARDIOLOGIE');
+INSERT INTO doctor_specializations (doctor_id, specializations) VALUES (1, 'CHIRURGIE');
+INSERT INTO doctor_specializations (doctor_id, specializations) VALUES (2, 'CHIRURGIE');
+INSERT INTO doctor_specializations (doctor_id, specializations) VALUES (3, 'ORTOPEDIE');
+INSERT INTO doctor_specializations (doctor_id, specializations) VALUES (4, 'CARDIOLOGIE');
+INSERT INTO doctor_specializations (doctor_id, specializations) VALUES (5, 'CHIRURGIE');
+INSERT INTO doctor_specializations (doctor_id, specializations) VALUES (5, 'ORTOPEDIE');
