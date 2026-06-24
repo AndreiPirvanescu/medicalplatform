@@ -1,87 +1,94 @@
 package com.andrei.project.medicalplatform.service;
 
-import com.andrei.project.medicalplatform.dto.CreateDoctorRequestDTO;
-import com.andrei.project.medicalplatform.dto.DoctorResponseDTO;
-import com.andrei.project.medicalplatform.dto.UpdateDoctorRequestDTO;
+import com.andrei.project.medicalplatform.dto.doctor.DoctorRegistrationDTO;
+import com.andrei.project.medicalplatform.dto.doctor.DoctorResponseDTO;
+import com.andrei.project.medicalplatform.exception.EmailAlreadyExistsException;
+import com.andrei.project.medicalplatform.mapper.DoctorToDoctorResponseDTOMapper;
 import com.andrei.project.medicalplatform.model.Doctor;
+import com.andrei.project.medicalplatform.model.Role;
+import com.andrei.project.medicalplatform.model.User;
 import com.andrei.project.medicalplatform.repository.DoctorRepository;
+import com.andrei.project.medicalplatform.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class DoctorService {
 
     private final DoctorRepository doctorRepository;
+    private final UserRepository userRepository;
+    private final DoctorToDoctorResponseDTOMapper doctorToDoctorResponseDTOMapper;
+    // private final PasswordEncoder passwordEncoder; // Decomentează când adaugi Spring Security
 
     @Transactional
-    public DoctorResponseDTO createDoctor(CreateDoctorRequestDTO dto) {
+    public DoctorResponseDTO addDoctor(DoctorRegistrationDTO doctorDto) {
+        if (userRepository.existsByEmail(doctorDto.getEmail())) {
+            throw new EmailAlreadyExistsException("Un utilizator cu acest email există deja.");
+        }
 
-        doctorRepository.findByEmail(dto.getEmail())
-                .ifPresent(d -> {
-                    throw new IllegalArgumentException("Doctor email already exists");
-                });
+        User user = new User();
+        user.setEmail(doctorDto.getEmail());
+        user.setPassword(doctorDto.getPassword()); // TODO: Aici ar trebui passwordEncoder.encode(dto.getPassword())
+        user.setFirstName(doctorDto.getFirstName());
+        user.setLastName(doctorDto.getLastName());
+        user.setRole(Role.DOCTOR);
+        User savedUser = userRepository.save(user);
 
-        Doctor doctor = Doctor.builder()
-                .name(dto.getName())
-                .email(dto.getEmail())
-                .specialization(dto.getSpecialization())
-                .build();
-
+        Doctor doctor = new Doctor();
+        doctor.setUser(savedUser);
+        doctor.setSpecializations(doctorDto.getSpecializations());
+        doctor.setLicenseNumber(doctorDto.getLicenseNumber());
         Doctor savedDoctor = doctorRepository.save(doctor);
-
-        return mapToDTO(savedDoctor);
+        return doctorToDoctorResponseDTOMapper.mapToResponseDto(savedDoctor);
     }
 
+    @Transactional(readOnly = true)
     public List<DoctorResponseDTO> getAllDoctors() {
-        return doctorRepository.findAll()
-                .stream()
-                .map(this::mapToDTO)
-                .toList();
+        return doctorRepository.findAll().stream()
+                .map(doctorToDoctorResponseDTOMapper::mapToResponseDto)
+                .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public DoctorResponseDTO getDoctorById(Long id) {
-
         Doctor doctor = doctorRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Doctor not found"));
-
-        return mapToDTO(doctor);
+                .orElseThrow(() -> new EntityNotFoundException("Doctorul cu ID-ul " + id + " nu a fost găsit."));
+        return doctorToDoctorResponseDTOMapper.mapToResponseDto(doctor);
     }
 
     @Transactional
-    public DoctorResponseDTO updateDoctor(Long id, UpdateDoctorRequestDTO dto) {
-
+    public DoctorResponseDTO updateDoctor(Long id, DoctorRegistrationDTO doctorRegistrationDto) {
         Doctor doctor = doctorRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Doctor not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Doctorul cu ID-ul " + id + " nu a fost găsit."));
 
-        doctor.setName(dto.getName());
-        doctor.setEmail(dto.getEmail());
-        doctor.setSpecialization(dto.getSpecialization());
+        // Actualizare date User asociat
+        User user = doctor.getUser();
+        user.setFirstName(doctorRegistrationDto.getFirstName());
+        user.setLastName(doctorRegistrationDto.getLastName());
+        // Email-ul și parola pot fi lăsate neschimbate sau actualizate cu validări suplimentare
+        userRepository.save(user);
 
+        // Actualizare date specifice Doctor
+        doctor.setSpecializations(doctorRegistrationDto.getSpecializations());
+        doctor.setLicenseNumber(doctorRegistrationDto.getLicenseNumber());
         Doctor updatedDoctor = doctorRepository.save(doctor);
 
-        return mapToDTO(updatedDoctor);
+        return doctorToDoctorResponseDTOMapper.mapToResponseDto(updatedDoctor);
     }
 
     @Transactional
     public void deleteDoctor(Long id) {
-
         Doctor doctor = doctorRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Doctor not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Doctorul cu ID-ul " + id + " nu a fost găsit."));
 
+        // Ștergem doctorul și utilizatorul asociat (Cascade-ul manual sau din DB se ocupă de restul)
         doctorRepository.delete(doctor);
-    }
-
-    private DoctorResponseDTO mapToDTO(Doctor doctor) {
-
-        return DoctorResponseDTO.builder()
-                .id(doctor.getId())
-                .name(doctor.getName())
-                .email(doctor.getEmail())
-                .specialization(doctor.getSpecialization())
-                .build();
+        userRepository.delete(doctor.getUser());
     }
 }

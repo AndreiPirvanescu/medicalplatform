@@ -3,21 +3,27 @@ package com.andrei.project.medicalplatform.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "doctors")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@NoArgsConstructor @AllArgsConstructor @Getter @Setter
 public class Doctor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    @OneToOne
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    private User user;
 
-    private String email;
+    @ElementCollection(targetClass = Specialization.class)
+    @CollectionTable(name = "doctor_specializations", joinColumns = @JoinColumn(name = "doctor_id"))
+    @Enumerated(EnumType.STRING)
+    @Column(name = "specializations")
+    private List<Specialization> specializations;
 
-    private String specialization;
+    @Column(name = "license_number")
+    private String licenseNumber;
 }
