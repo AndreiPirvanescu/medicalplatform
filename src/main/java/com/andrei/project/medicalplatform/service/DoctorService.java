@@ -1,6 +1,6 @@
 package com.andrei.project.medicalplatform.service;
 
-import com.andrei.project.medicalplatform.dto.doctor.DoctorRegistrationDTO;
+import com.andrei.project.medicalplatform.dto.doctor.DoctorCreateRequestDTO;
 import com.andrei.project.medicalplatform.dto.doctor.DoctorResponseDTO;
 import com.andrei.project.medicalplatform.exception.EmailAlreadyExistsException;
 import com.andrei.project.medicalplatform.mapper.DoctorToDoctorResponseDTOMapper;
@@ -27,23 +27,23 @@ public class DoctorService {
     // private final PasswordEncoder passwordEncoder; // Decomentează când adaugi Spring Security
 
     @Transactional
-    public DoctorResponseDTO addDoctor(DoctorRegistrationDTO doctorDto) {
-        if (userRepository.existsByEmail(doctorDto.getEmail())) {
+    public DoctorResponseDTO addDoctor(DoctorCreateRequestDTO doctorDto) {
+        if (userRepository.existsByEmail(doctorDto.email())) {
             throw new EmailAlreadyExistsException("Un utilizator cu acest email există deja.");
         }
 
         User user = new User();
-        user.setEmail(doctorDto.getEmail());
-        user.setPassword(doctorDto.getPassword()); // TODO: Aici ar trebui passwordEncoder.encode(dto.getPassword())
-        user.setFirstName(doctorDto.getFirstName());
-        user.setLastName(doctorDto.getLastName());
+        user.setEmail(doctorDto.email());
+        user.setPassword(doctorDto.password()); // TODO: Aici ar trebui passwordEncoder.encode(dto.getPassword())
+        user.setFirstName(doctorDto.firstName());
+        user.setLastName(doctorDto.lastName());
         user.setRole(Role.DOCTOR);
         User savedUser = userRepository.save(user);
 
         Doctor doctor = new Doctor();
         doctor.setUser(savedUser);
-        doctor.setSpecializations(doctorDto.getSpecializations());
-        doctor.setLicenseNumber(doctorDto.getLicenseNumber());
+        doctor.setSpecializations(doctorDto.specializations());
+        doctor.setLicenseNumber(doctorDto.licenseNumber());
         Doctor savedDoctor = doctorRepository.save(doctor);
         return doctorToDoctorResponseDTOMapper.mapToResponseDto(savedDoctor);
     }
@@ -58,25 +58,25 @@ public class DoctorService {
     @Transactional(readOnly = true)
     public DoctorResponseDTO getDoctorById(Long id) {
         Doctor doctor = doctorRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Doctorul cu ID-ul " + id + " nu a fost găsit."));
+                .orElseThrow(() -> new EntityNotFoundException("No doctor could be found with id: " + id));
         return doctorToDoctorResponseDTOMapper.mapToResponseDto(doctor);
     }
 
     @Transactional
-    public DoctorResponseDTO updateDoctor(Long id, DoctorRegistrationDTO doctorRegistrationDto) {
+    public DoctorResponseDTO updateDoctor(Long id, DoctorCreateRequestDTO doctorCreateRequestDto) {
         Doctor doctor = doctorRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Doctorul cu ID-ul " + id + " nu a fost găsit."));
 
         // Actualizare date User asociat
         User user = doctor.getUser();
-        user.setFirstName(doctorRegistrationDto.getFirstName());
-        user.setLastName(doctorRegistrationDto.getLastName());
+        user.setFirstName(doctorCreateRequestDto.firstName());
+        user.setLastName(doctorCreateRequestDto.lastName());
         // Email-ul și parola pot fi lăsate neschimbate sau actualizate cu validări suplimentare
         userRepository.save(user);
 
         // Actualizare date specifice Doctor
-        doctor.setSpecializations(doctorRegistrationDto.getSpecializations());
-        doctor.setLicenseNumber(doctorRegistrationDto.getLicenseNumber());
+        doctor.setSpecializations(doctorCreateRequestDto.specializations());
+        doctor.setLicenseNumber(doctorCreateRequestDto.licenseNumber());
         Doctor updatedDoctor = doctorRepository.save(doctor);
 
         return doctorToDoctorResponseDTOMapper.mapToResponseDto(updatedDoctor);
