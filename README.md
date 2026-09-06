@@ -150,14 +150,13 @@ Manager** and **Admin** users.
 * Get the overview statistics. (**GET** /api/admin/stats)
 
 ### IV. Entities
-There are 11 entities:
+There are 10 entities:
 
 * User
 * Role
 * MedicalUnit
 * Doctor
 * Patient
-* Specialization
 * Appointment
 * Schedule
 * MedicalRecord
