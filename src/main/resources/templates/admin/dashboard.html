@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title='Admin Dashboard')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="container">
+
+    <div class="page-header">
+        <div>
+            <h1>Admin Dashboard</h1>
+            <p class="subtitle">Platform-wide overview.</p>
+        </div>
+    </div>
+
+    <div class="stat-grid">
+        <div class="stat-tile">
+            <div class="stat-value" th:text="${stats.totalMedicalUnits}">0</div>
+            <div class="stat-label">Medical Units</div>
+        </div>
+        <div class="stat-tile">
+            <div class="stat-value" th:text="${stats.totalDoctors}">0</div>
+            <div class="stat-label">Doctors</div>
+        </div>
+        <div class="stat-tile">
+            <div class="stat-value" th:text="${stats.totalPatients}">0</div>
+            <div class="stat-label">Patients</div>
+        </div>
+        <div class="stat-tile">
+            <div class="stat-value" th:text="${stats.totalAppointments}">0</div>
+            <div class="stat-label">Appointments</div>
+        </div>
+        <div class="stat-tile">
+            <div class="stat-value" th:text="${stats.totalPrescriptions}">0</div>
+            <div class="stat-label">Prescriptions</div>
+        </div>
+    </div>
+
+    <div class="btn-group" style="margin-top:24px;">
+        <a class="btn btn-secondary" th:href="@{/medical-units}">Manage Medical Units</a>
+        <a class="btn btn-secondary" th:href="@{/doctors}">Manage Doctors</a>
+        <a class="btn btn-secondary" th:href="@{/patients}">Manage Patients</a>
+        <a class="btn btn-secondary" th:href="@{/appointments}">View Appointments</a>
+        <a class="btn btn-secondary" th:href="@{/prescriptions}">View Prescriptions</a>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

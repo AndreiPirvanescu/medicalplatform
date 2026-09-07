@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title='Medication History')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="container">
+
+    <div class="page-header">
+        <h1 th:text="'Medication History - ' + ${patient.firstName} + ' ' + ${patient.lastName}">Medication History</h1>
+        <a class="btn btn-secondary" th:href="@{/patients/{id}(id=${patient.id})}">&larr; Back to patient</a>
+    </div>
+
+    <div class="filter-bar">
+        <form th:action="@{/patients/{id}/medication-history(id=${patient.id})}" method="get">
+            <div class="field">
+                <label for="name">Medication name</label>
+                <input type="text" id="name" name="name" th:value="${nameFilter}"/>
+            </div>
+            <div class="field">
+                <button type="submit" class="btn btn-secondary">Filter</button>
+            </div>
+            <div class="field" th:if="${nameFilter != null}">
+                <a th:href="@{/patients/{id}/medication-history(id=${patient.id})}" class="btn btn-secondary">Clear</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+            <tr>
+                <th>Medication</th>
+                <th>Dosage</th>
+                <th>Issued</th>
+                <th>Doctor</th>
+                <th>Prescription</th>
+                <th>Notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="entry : ${history}">
+                <td><a th:href="@{/medications/{id}(id=${entry.medicationId})}" th:text="${entry.medicationName}">Medication</a></td>
+                <td th:text="${entry.dosage}">Dosage</td>
+                <td th:text="${#temporals.format(entry.issueDate, 'dd MMM yyyy, HH:mm')}">01 Jan 2026</td>
+                <td><a th:href="@{/doctors/{id}(id=${entry.doctorId})}" th:text="${entry.doctorFullName}">Doctor</a></td>
+                <td><a th:href="@{/prescriptions/{id}(id=${entry.prescriptionId})}">View</a></td>
+                <td th:text="${entry.notes}">Notes</td>
+            </tr>
+            <tr th:if="${history.isEmpty()}">
+                <td colspan="6" class="empty-state">No medication history for this patient.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

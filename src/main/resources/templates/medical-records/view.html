@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title='Medical Record')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="container">
+
+    <div class="page-header">
+        <div>
+            <h1 th:text="'Medical Record - ' + ${patient.firstName} + ' ' + ${patient.lastName}">Medical Record</h1>
+        </div>
+        <div class="btn-group">
+            <a class="btn btn-secondary" th:if="${record != null}"
+               th:href="@{/medical-records/{id}/edit(id=${record.id}, patientId=${patient.id})}">Edit Notes</a>
+            <a class="btn btn-secondary" th:href="@{/patients/{id}(id=${patient.id})}">&larr; Back to patient</a>
+        </div>
+    </div>
+
+    <div th:if="${record == null}" class="card">
+        <p class="text-muted">This patient doesn't have a medical record yet.</p>
+        <a class="btn btn-primary" th:href="@{/patients/{id}/medical-record/new(id=${patient.id})}">+ Create Medical Record</a>
+    </div>
+
+    <div th:if="${record != null}">
+        <div class="card">
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <div class="detail-label">Created</div>
+                    <div class="detail-value" th:text="${#temporals.format(record.createdDate, 'dd MMM yyyy, HH:mm')}">01 Jan 2026</div>
+                </div>
+                <div class="detail-item full-width">
+                    <div class="detail-label">Notes</div>
+                    <div class="detail-value" th:text="${record.notes}" style="white-space: pre-wrap;">Notes</div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Consultation &amp; Treatment History</h2>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Doctor</th>
+                    <th>Description</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="entry : ${history}">
+                    <td th:text="${#temporals.format(entry.date, 'dd MMM yyyy, HH:mm')}">01 Jan 2026</td>
+                    <td><span class="badge" th:text="${entry.type}">TYPE</span></td>
+                    <td>
+                        <a th:if="${entry.doctorId != null}" th:href="@{/doctors/{id}(id=${entry.doctorId})}" th:text="${entry.doctorFullName}">Doctor</a>
+                        <span th:unless="${entry.doctorId != null}" class="text-muted">-</span>
+                    </td>
+                    <td th:text="${entry.description}">Description</td>
+                </tr>
+                <tr th:if="${history.isEmpty()}">
+                    <td colspan="4" class="empty-state">No consultation or treatment history yet.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

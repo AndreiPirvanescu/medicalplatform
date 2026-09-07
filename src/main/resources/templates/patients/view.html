@@ -10,6 +10,8 @@
     <div class="page-header">
         <h1 th:text="${patient.firstName + ' ' + patient.lastName}">Patient name</h1>
         <div class="btn-group">
+            <a class="btn btn-secondary" th:href="@{/patients/{id}/medical-record(id=${patient.id})}">Medical Record</a>
+            <a class="btn btn-secondary" th:href="@{/patients/{id}/medication-history(id=${patient.id})}">Medication History</a>
             <a class="btn btn-secondary" th:href="@{/patients/{id}/edit(id=${patient.id})}">Edit</a>
             <a class="btn btn-secondary" th:href="@{/patients}">&larr; Back to list</a>
         </div>
@@ -68,11 +70,42 @@
         </table>
     </div>
 
-    <!--
-      Features 6/7 (medical records, prescriptions) will hang more sections
-      off this page later, e.g. <h2 class="section-title">Medical Record</h2>
-      Left out for now since only features 1-5 were requested.
-    -->
+    <div class="page-header" style="margin-top:8px;">
+        <h2 class="section-title" style="border:none;margin:0;">Prescriptions</h2>
+        <a class="btn btn-primary btn-sm" th:href="@{/prescriptions/new(patientId=${patient.id})}">+ Issue Prescription</a>
+    </div>
+
+    <!-- "prescriptions" model attribute: List<PrescriptionResponseDto> for this patient (Feature 7) -->
+    <div class="table-wrapper">
+        <table>
+            <thead>
+            <tr>
+                <th>Issued</th>
+                <th>Doctor</th>
+                <th>Medications</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="rx : ${prescriptions}">
+                <td th:text="${#temporals.format(rx.issueDate, 'dd MMM yyyy, HH:mm')}">01 Jan 2026, 10:00</td>
+                <td><a th:href="@{/doctors/{id}(id=${rx.doctorId})}" th:text="${rx.doctorFullName}">Doctor</a></td>
+                <td>
+                    <div class="badge-list">
+                        <span class="badge" th:each="med : ${rx.medications}" th:text="${med.name}">Medication</span>
+                        <span th:if="${rx.medications.isEmpty()}" class="text-muted">None</span>
+                    </div>
+                </td>
+                <td class="actions-cell">
+                    <a class="btn btn-secondary btn-sm" th:href="@{/prescriptions/{id}(id=${rx.id})}">View</a>
+                </td>
+            </tr>
+            <tr th:if="${prescriptions.isEmpty()}">
+                <td colspan="4" class="empty-state">No prescriptions yet.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 
 </main>
 

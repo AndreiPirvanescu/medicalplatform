@@ -5,6 +5,7 @@ import com.andrei.project.medicalplatform.dto.patient.PatientRequestDto;
 import com.andrei.project.medicalplatform.dto.patient.PatientResponseDto;
 import com.andrei.project.medicalplatform.service.AppointmentService;
 import com.andrei.project.medicalplatform.service.PatientService;
+import com.andrei.project.medicalplatform.service.PrescriptionService;
 import com.andrei.project.medicalplatform.web.form.PatientFormDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,7 @@ public class PatientController {
 
     private final PatientService patientService;
     private final AppointmentService appointmentService; // Feature 4 - shown on the patient detail page
+    private final PrescriptionService prescriptionService; // Feature 7 - shown on the patient detail page
     // private final UserService userService; // TODO: wire up your real user lookup
 
     // =========================================================
@@ -100,6 +102,7 @@ public class PatientController {
     public String view(@PathVariable Long id, Model model) {
         model.addAttribute("patient", patientService.getById(id));
         model.addAttribute("appointments", appointmentService.getByPatient(id)); // Feature 4
+        model.addAttribute("prescriptions", prescriptionService.getByPatient(id)); // Feature 7
         return "patients/view";
     }
 

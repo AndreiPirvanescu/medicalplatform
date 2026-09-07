@@ -100,6 +100,43 @@
         </table>
     </div>
 
+    <div class="page-header" style="margin-top:8px;">
+        <h2 class="section-title" style="border:none;margin:0;">Recent Prescriptions</h2>
+        <a class="btn btn-primary btn-sm" th:href="@{/prescriptions/new(doctorId=${doctor.id})}">+ Issue Prescription</a>
+    </div>
+
+    <!-- "prescriptions" model attribute: Page<PrescriptionResponseDto> issued by this doctor (Feature 7) -->
+    <div class="table-wrapper">
+        <table>
+            <thead>
+            <tr>
+                <th>Issued</th>
+                <th>Patient</th>
+                <th>Medications</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="rx : ${prescriptions.content}">
+                <td th:text="${#temporals.format(rx.issueDate, 'dd MMM yyyy, HH:mm')}">01 Jan 2026, 10:00</td>
+                <td><a th:href="@{/patients/{id}(id=${rx.patientId})}" th:text="${rx.patientFullName}">Patient</a></td>
+                <td>
+                    <div class="badge-list">
+                        <span class="badge" th:each="med : ${rx.medications}" th:text="${med.name}">Medication</span>
+                        <span th:if="${rx.medications.isEmpty()}" class="text-muted">None</span>
+                    </div>
+                </td>
+                <td class="actions-cell">
+                    <a class="btn btn-secondary btn-sm" th:href="@{/prescriptions/{id}(id=${rx.id})}">View</a>
+                </td>
+            </tr>
+            <tr th:if="${prescriptions.content.isEmpty()}">
+                <td colspan="4" class="empty-state">No prescriptions issued yet.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
 </main>
 
 <footer th:replace="~{fragments/layout :: footer}"></footer>

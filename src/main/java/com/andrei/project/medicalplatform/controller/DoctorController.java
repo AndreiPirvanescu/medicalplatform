@@ -9,6 +9,7 @@ import com.andrei.project.medicalplatform.service.AppointmentService;
 import com.andrei.project.medicalplatform.service.DoctorSearchService;
 import com.andrei.project.medicalplatform.service.DoctorService;
 import com.andrei.project.medicalplatform.service.MedicalUnitService;
+import com.andrei.project.medicalplatform.service.PrescriptionService;
 import com.andrei.project.medicalplatform.web.form.DoctorFormDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -53,6 +54,7 @@ public class DoctorController {
     private final DoctorSearchService doctorSearchService;
     private final MedicalUnitService medicalUnitService;
     private final AppointmentService appointmentService; // Feature 4 - shown on the doctor detail page
+    private final PrescriptionService prescriptionService; // Feature 7 - shown on the doctor detail page
     // private final UserService userService; // TODO: wire up your real user lookup
 
     // =========================================================
@@ -156,6 +158,8 @@ public class DoctorController {
     public String view(@PathVariable Long id, Model model) {
         model.addAttribute("doctor", doctorService.getById(id));
         model.addAttribute("appointments", appointmentService.getByDoctor(id)); // Feature 4
+        model.addAttribute("prescriptions", // Feature 7 - reuses getAll with a doctorId filter since there's no getByDoctor for prescriptions
+                prescriptionService.getAll(null, id, null, null, PageRequest.of(0, 10)));
         return "doctors/view";
     }
 

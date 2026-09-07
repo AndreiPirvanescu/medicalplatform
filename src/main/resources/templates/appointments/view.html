@@ -10,6 +10,7 @@
     <div class="page-header">
         <h1>Appointment</h1>
         <div class="btn-group">
+            <a class="btn btn-secondary" th:href="@{/prescriptions/new(patientId=${appointment.patientId}, doctorId=${appointment.doctorId}, appointmentId=${appointment.id})}">Issue Prescription</a>
             <a class="btn btn-secondary" th:href="@{/appointments/{id}/edit(id=${appointment.id})}">Edit</a>
             <a class="btn btn-secondary" th:href="@{/appointments}">&larr; Back to list</a>
         </div>
@@ -39,11 +40,6 @@
             </div>
         </div>
     </div>
-
-    <!--
-      Features 6/7 (medical records, prescriptions) will likely link off of
-      an appointment eventually - left out for now since only 4-5 were asked for.
-    -->
 
     <form th:action="@{/appointments/{id}/delete(id=${appointment.id})}" method="post"
           onsubmit="return confirm('Cancel this appointment?');" style="margin-top:16px;">
