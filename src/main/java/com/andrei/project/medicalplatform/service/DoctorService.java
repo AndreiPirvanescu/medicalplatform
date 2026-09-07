@@ -81,7 +81,7 @@ public class DoctorService {
     public Page<DoctorResponseDto> getAll(String name, Specialization specialization,
                                           Long medicalUnitId, Pageable pageable) {
         return doctorRepository
-                .findAll(DoctorSpecifications.filterBy(name, specialization, medicalUnitId), pageable)
+                .findAll(DoctorSpecifications.filterByShort(name, specialization, medicalUnitId), pageable)
                 .map(mapper::toDto);
     }
 

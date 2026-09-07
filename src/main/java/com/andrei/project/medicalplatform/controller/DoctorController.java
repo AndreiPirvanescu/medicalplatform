@@ -3,14 +3,18 @@ package com.andrei.project.medicalplatform.controller;
 import com.andrei.project.medicalplatform.dto.doctor.DoctorRequestDto;
 import com.andrei.project.medicalplatform.dto.doctor.DoctorResponseDto;
 import com.andrei.project.medicalplatform.model.Specialization;
+import com.andrei.project.medicalplatform.service.DoctorSearchService;
 import com.andrei.project.medicalplatform.service.DoctorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/doctors")
@@ -18,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class DoctorController {
 
     private final DoctorService doctorService;
+    private final DoctorSearchService doctorSearchService;
 
     @PutMapping("/{id}")
     public ResponseEntity<DoctorResponseDto> update(
@@ -57,4 +62,18 @@ public class DoctorController {
             @PathVariable Long id, @PathVariable Specialization specId) {
         return ResponseEntity.ok(doctorService.removeSpecialization(id, specId));
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<DoctorResponseDto>> search(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Specialization specialization,
+            @RequestParam(required = false) Long medicalUnitId,
+            @RequestParam(required = false) Boolean available,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
+            @PageableDefault(size = 20, sort = "id") Pageable pageable) {
+        return ResponseEntity.ok(
+                doctorSearchService.search(name, specialization, medicalUnitId, available, from, to, pageable));
+    }
+
 }
