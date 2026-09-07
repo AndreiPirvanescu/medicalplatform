@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title=${doctor.id == null ? 'Add Doctor' : 'Edit Doctor'})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="container">
+
+    <div class="page-header">
+        <div>
+            <h1 th:text="${doctor.id == null ? 'Add Doctor' : 'Edit Doctor'}">Add Doctor</h1>
+            <p class="subtitle" th:if="${medicalUnit != null}">
+                For <strong th:text="${medicalUnit.name}">Unit name</strong>
+            </p>
+        </div>
+        <a class="btn btn-secondary"
+           th:href="${medicalUnit != null} ? @{/medical-units/{id}(id=${medicalUnit.id})} : @{/doctors}">&larr; Back</a>
+    </div>
+
+    <div class="card">
+
+        <form th:action="${doctor.id == null}
+                            ? @{/medical-units/{unitId}/doctors(unitId=${medicalUnit.id})}
+                            : @{/doctors/{id}/update(id=${doctor.id})}"
+              th:object="${doctor}" method="post">
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="userId">User <span class="required">*</span></label>
+                    <!-- "eligibleUsers" model attribute: users not yet linked to a doctor profile -->
+                    <select id="userId" th:field="*{userId}"
+                            th:classappend="${#fields.hasErrors('userId')} ? 'is-invalid'">
+                        <option value="">-- Select a user --</option>
+                        <option th:each="u : ${eligibleUsers}" th:value="${u.id}" th:text="${u.fullName}">User</option>
+                    </select>
+                    <div class="field-error" th:if="${#fields.hasErrors('userId')}" th:errors="*{userId}"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="licenseNumber">License Number <span class="required">*</span></label>
+                    <input type="text" id="licenseNumber" th:field="*{licenseNumber}"
+                           th:classappend="${#fields.hasErrors('licenseNumber')} ? 'is-invalid'"/>
+                    <div class="field-error" th:if="${#fields.hasErrors('licenseNumber')}" th:errors="*{licenseNumber}"></div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Specializations <span class="required">*</span></label>
+                    <div class="checkbox-grid">
+                        <div class="checkbox-item" th:each="spec : ${allSpecializations}">
+                            <input type="checkbox" th:id="${'spec-' + spec}" name="specializations"
+                                   th:value="${spec}"
+                                   th:checked="${doctor.specializations != null and doctor.specializations.contains(spec)}"/>
+                            <label th:for="${'spec-' + spec}" th:text="${spec}" style="font-weight:400;">SPEC</label>
+                        </div>
+                    </div>
+                    <div class="field-error" th:if="${#fields.hasErrors('specializations')}" th:errors="*{specializations}"></div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" th:text="${doctor.id == null ? 'Add Doctor' : 'Save Changes'}">Save</button>
+                <a class="btn btn-secondary"
+                   th:href="${medicalUnit != null} ? @{/medical-units/{id}(id=${medicalUnit.id})} : @{/doctors}">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

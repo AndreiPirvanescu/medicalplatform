@@ -27,6 +27,6 @@ public class MedicalUnit {
     @JoinColumn(name = "manager_id", nullable =false, unique = true)
     private User manager;
 
-    @OneToMany(mappedBy = "medicalUnit")
+    @OneToMany(mappedBy = "medicalUnit", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Doctor> doctors;
 }

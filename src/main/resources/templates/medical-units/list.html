@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title='Medical Units')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="container">
+
+    <div class="page-header">
+        <div>
+            <h1>Medical Units</h1>
+            <p class="subtitle">Register, update and manage medical units on the platform.</p>
+        </div>
+        <a class="btn btn-primary" th:href="@{/medical-units/new}">+ Add Medical Unit</a>
+    </div>
+
+    <div class="filter-bar">
+        <form th:action="@{/medical-units}" method="get">
+            <div class="field">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" placeholder="Search by name"
+                       th:value="${param.name}"/>
+            </div>
+            <div class="field">
+                <label for="location">Location</label>
+                <input type="text" id="location" name="location" placeholder="City / address"
+                       th:value="${param.location}"/>
+            </div>
+            <div class="field">
+                <button type="submit" class="btn btn-secondary">Filter</button>
+            </div>
+            <div class="field" th:if="${param.name != null or param.location != null}">
+                <a th:href="@{/medical-units}" class="btn btn-secondary">Clear</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+            <tr>
+                <th><a th:href="@{/medical-units(name=${param.name}, location=${param.location}, sort='name')}">Name</a></th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Address</th>
+                <th>Manager</th>
+                <th>Doctors</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="unit : ${medicalUnits.content}">
+                <td>
+                    <a th:href="@{/medical-units/{id}(id=${unit.id})}" th:text="${unit.name}">Unit name</a>
+                </td>
+                <td th:text="${unit.email}">unit@email.com</td>
+                <td th:text="${unit.phone}">000-000-000</td>
+                <td th:text="${unit.address}">Address</td>
+                <td>
+                    <span th:if="${unit.managerId != null}" th:text="${unit.managerFullName}">Manager name</span>
+                    <span th:unless="${unit.managerId != null}" class="badge badge-muted">Unassigned</span>
+                </td>
+                <td><span class="badge" th:text="${unit.doctorCount}">0</span></td>
+                <td class="actions-cell">
+                    <div class="btn-group">
+                        <a class="btn btn-secondary btn-sm" th:href="@{/medical-units/{id}(id=${unit.id})}">View</a>
+                        <a class="btn btn-secondary btn-sm" th:href="@{/medical-units/{id}/edit(id=${unit.id})}">Edit</a>
+                        <form th:action="@{/medical-units/{id}/delete(id=${unit.id})}" method="post"
+                              onsubmit="return confirm('Delete this medical unit? This cannot be undone.');">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${medicalUnits.content.isEmpty()}">
+                <td colspan="7" class="empty-state">No medical units found.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <nav class="pagination" th:if="${medicalUnits.totalPages > 1}">
+        <a th:if="${!medicalUnits.first}"
+           th:href="@{/medical-units(name=${param.name}, location=${param.location}, page=${medicalUnits.number - 1})}">&laquo; Prev</a>
+        <span th:each="i : ${#numbers.sequence(0, medicalUnits.totalPages - 1)}">
+            <span th:if="${i == medicalUnits.number}" class="current" th:text="${i + 1}">1</span>
+            <a th:unless="${i == medicalUnits.number}"
+               th:href="@{/medical-units(name=${param.name}, location=${param.location}, page=${i})}"
+               th:text="${i + 1}">1</a>
+        </span>
+        <a th:if="${!medicalUnits.last}"
+           th:href="@{/medical-units(name=${param.name}, location=${param.location}, page=${medicalUnits.number + 1})}">Next &raquo;</a>
+    </nav>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

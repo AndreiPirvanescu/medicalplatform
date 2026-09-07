@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title=${patient.firstName + ' ' + patient.lastName})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="container">
+
+    <div class="page-header">
+        <h1 th:text="${patient.firstName + ' ' + patient.lastName}">Patient name</h1>
+        <div class="btn-group">
+            <a class="btn btn-secondary" th:href="@{/patients/{id}/edit(id=${patient.id})}">Edit</a>
+            <a class="btn btn-secondary" th:href="@{/patients}">&larr; Back to list</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="detail-grid">
+            <div class="detail-item">
+                <div class="detail-label">Email</div>
+                <div class="detail-value" th:text="${patient.email}">patient@email.com</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Phone</div>
+                <div class="detail-value" th:text="${patient.phone}">000-000-000</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Date of Birth</div>
+                <div class="detail-value" th:text="${#temporals.format(patient.dateOfBirth, 'dd MMM yyyy')}">01 Jan 1990</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Blood Type</div>
+                <div class="detail-value"><span class="badge" th:text="${patient.bloodType}">O+</span></div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title=${doctor.doctorFullName})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="container">
+
+    <div class="page-header">
+        <div>
+            <h1 th:text="${doctor.doctorFullName}">Dr. Name</h1>
+            <p class="subtitle">
+                <a th:href="@{/medical-units/{id}(id=${doctor.medicalUnitId})}" th:text="${doctor.medicalUnitName}">Unit</a>
+            </p>
+        </div>
+        <div class="btn-group">
+            <a class="btn btn-secondary" th:href="@{/doctors/{id}/edit(id=${doctor.id})}">Edit</a>
+            <a class="btn btn-secondary" th:href="@{/doctors}">&larr; Back to list</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="detail-grid">
+            <div class="detail-item">
+                <div class="detail-label">Email</div>
+                <div class="detail-value" th:text="${doctor.email}">doctor@email.com</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">License Number</div>
+                <div class="detail-value" th:text="${doctor.licenseNumber}">LIC-000</div>
+            </div>
+            <div class="detail-item full-width">
+                <div class="detail-label">Specializations</div>
+                <div class="detail-value badge-list">
+                    <span class="badge" th:each="spec : ${doctor.specializations}" th:text="${spec}">SPEC</span>
+                    <span th:if="${doctor.specializations.isEmpty()}" class="text-muted">None assigned</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2 class="section-title">Manage Specializations</h2>
+    <div class="card">
+        <div class="form-grid" style="align-items:end;">
+            <form th:action="@{/doctors/{id}/specializations(id=${doctor.id})}" method="post" class="form-group">
+                <label for="addSpec">Add specialization</label>
+                <div style="display:flex; gap:8px;">
+                    <select id="addSpec" name="specializationId">
+                        <option th:each="spec : ${allSpecializations}"
+                                th:if="${!doctor.specializations.contains(spec)}"
+                                th:value="${spec}" th:text="${spec}">SPEC</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary btn-sm">Add</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="badge-list" style="margin-top:12px;" th:if="${!doctor.specializations.isEmpty()}">
+            <form th:each="spec : ${doctor.specializations}"
+                  th:action="@{/doctors/{id}/specializations/{specId}/delete(id=${doctor.id}, specId=${spec})}"
+                  method="post" style="display:inline;">
+                <button type="submit" class="btn btn-secondary btn-sm" th:text="'Remove ' + ${spec}"
+                        onclick="return confirm('Remove this specialization?');">Remove SPEC</button>
+            </form>
+        </div>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

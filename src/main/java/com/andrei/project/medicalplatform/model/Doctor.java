@@ -30,4 +30,13 @@ public class Doctor {
 
     @Column(name = "license_number")
     private String licenseNumber;
+
+    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Schedule> schedules;
+
+    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Appointment> appointment;
+
+    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Prescription> prescriptions;
 }

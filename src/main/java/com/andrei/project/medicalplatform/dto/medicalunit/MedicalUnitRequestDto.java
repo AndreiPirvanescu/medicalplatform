@@ -2,30 +2,35 @@ package com.andrei.project.medicalplatform.dto.medicalunit;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
+/**
+ * ASSUMPTION: only MedicalUnitResponseDto was shared with me, not the
+ * request-side DTO. This mirrors MedicalUnitResponseDto minus its computed
+ * fields (managerFullName, doctorCount), on the assumption managerId is
+ * optional (a unit can exist before a manager is assigned).
+ *
+ * If you already have a MedicalUnitRequestDto, delete this file and adjust
+ * MedicalUnitViewController + medical-units/form.html field names to match.
+ */
 public record MedicalUnitRequestDto(
-
         @NotBlank(message = "Name is required")
-        @Size(min = 2, max = 150, message = "Name must be between 2 and 150 characters")
+        @Size(max = 150, message = "Name must not exceed 150 characters")
         String name,
 
         @NotBlank(message = "Email is required")
-        @Email(message = "Email must be a valid email address")
-        @Size(max = 100, message = "Email must not exceed 100 characters")
+        @Email(message = "Email must be valid")
         String email,
 
-        @Pattern(regexp = "^\\+?[0-9\\- ]{7,20}$", message = "Phone number format is invalid")
+        @NotBlank(message = "Phone is required")
+        @Size(max = 20, message = "Phone must not exceed 20 characters")
         String phone,
 
         @NotBlank(message = "Address is required")
         @Size(max = 255, message = "Address must not exceed 255 characters")
         String address,
 
-        @NotNull(message = "Manager id is required")
-        @Positive(message = "Manager id must be a positive number")
+        @Positive(message = "Manager id must be positive")
         Long managerId
 ) {}

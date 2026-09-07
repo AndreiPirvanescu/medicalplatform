@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title='Doctors')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="container">
+
+    <div class="page-header">
+        <div>
+            <h1>Doctors</h1>
+            <p class="subtitle">Search and manage doctors across all medical units.</p>
+        </div>
+        <a class="btn btn-primary" th:href="@{/medical-units}">+ Add Doctor (via a unit)</a>
+    </div>
+
+    <div class="filter-bar">
+        <form th:action="@{/doctors}" method="get">
+            <div class="field">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" placeholder="Doctor name" th:value="${param.name}"/>
+            </div>
+            <div class="field">
+                <label for="specialization">Specialization</label>
+                <select id="specialization" name="specialization">
+                    <option value="">Any</option>
+                    <option th:each="spec : ${allSpecializations}" th:value="${spec}" th:text="${spec}"
+                            th:selected="${param.specialization != null and param.specialization[0] == spec.toString()}">SPEC</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="medicalUnitId">Medical Unit</label>
+                <select id="medicalUnitId" name="medicalUnitId">
+                    <option value="">Any</option>
+                    <option th:each="unit : ${allMedicalUnits}" th:value="${unit.id}" th:text="${unit.name}"
+                            th:selected="${param.medicalUnitId != null and param.medicalUnitId[0] == unit.id.toString()}">Unit</option>
+                </select>
+            </div>
+            <div class="field checkbox-item" style="padding-bottom:9px;">
+                <input type="checkbox" id="available" name="available" value="true"
+                       th:checked="${param.available != null}"/>
+                <label for="available" style="font-weight:400;">Available now</label>
+            </div>
+            <div class="field">
+                <button type="submit" class="btn btn-secondary">Search</button>
+            </div>
+            <div class="field">
+                <a th:href="@{/doctors}" class="btn btn-secondary">Clear</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Medical Unit</th>
+                <th>License #</th>
+                <th>Specializations</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="doctor : ${doctors.content}">
+                <td><a th:href="@{/doctors/{id}(id=${doctor.id})}" th:text="${doctor.doctorFullName}">Dr. Name</a></td>
+                <td th:text="${doctor.email}">doctor@email.com</td>
+                <td>
+                    <a th:href="@{/medical-units/{id}(id=${doctor.medicalUnitId})}" th:text="${doctor.medicalUnitName}">Unit</a>
+                </td>
+                <td th:text="${doctor.licenseNumber}">LIC-000</td>
+                <td>
+                    <div class="badge-list">
+                        <span class="badge" th:each="spec : ${doctor.specializations}" th:text="${spec}">SPEC</span>
+                    </div>
+                </td>
+                <td class="actions-cell">
+                    <div class="btn-group">
+                        <a class="btn btn-secondary btn-sm" th:href="@{/doctors/{id}(id=${doctor.id})}">View</a>
+                        <a class="btn btn-secondary btn-sm" th:href="@{/doctors/{id}/edit(id=${doctor.id})}">Edit</a>
+                        <form th:action="@{/doctors/{id}/delete(id=${doctor.id})}" method="post"
+                              onsubmit="return confirm('Remove this doctor?');">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${doctors.content.isEmpty()}">
+                <td colspan="6" class="empty-state">No doctors match your search.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <nav class="pagination" th:if="${doctors.totalPages > 1}">
+        <a th:if="${!doctors.first}" th:href="@{/doctors(page=${doctors.number - 1})}">&laquo; Prev</a>
+        <span th:each="i : ${#numbers.sequence(0, doctors.totalPages - 1)}">
+            <span th:if="${i == doctors.number}" class="current" th:text="${i + 1}">1</span>
+            <a th:unless="${i == doctors.number}" th:href="@{/doctors(page=${i})}" th:text="${i + 1}">1</a>
+        </span>
+        <a th:if="${!doctors.last}" th:href="@{/doctors(page=${doctors.number + 1})}">Next &raquo;</a>
+    </nav>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

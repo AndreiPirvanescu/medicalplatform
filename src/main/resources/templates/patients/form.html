@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title=${patient.id == null ? 'Register Patient' : 'Edit Patient'})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="container">
+
+    <div class="page-header">
+        <h1 th:text="${patient.id == null ? 'Register Patient' : 'Edit Patient'}">Register Patient</h1>
+        <a class="btn btn-secondary" th:href="@{/patients}">&larr; Back to list</a>
+    </div>
+
+    <div class="card">
+        <!--
+          "patient" model attribute is a PatientRequestDto: userId, dateOfBirth, bloodType.
+        -->
+        <form th:action="${patient.id == null} ? @{/patients} : @{/patients/{id}/update(id=${patient.id})}"
+              th:object="${patient}" method="post">
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="userId">User <span class="required">*</span></label>
+                    <!-- "eligibleUsers" model attribute: users not yet linked to a patient profile -->
+                    <select id="userId" th:field="*{userId}"
+                            th:classappend="${#fields.hasErrors('userId')} ? 'is-invalid'">
+                        <option value="">-- Select a user --</option>
+                        <option th:each="u : ${eligibleUsers}" th:value="${u.id}" th:text="${u.fullName}">User</option>
+                    </select>
+                    <div class="field-error" th:if="${#fields.hasErrors('userId')}" th:errors="*{userId}"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="dateOfBirth">Date of Birth <span class="required">*</span></label>
+                    <input type="date" id="dateOfBirth" th:field="*{dateOfBirth}"
+                           th:classappend="${#fields.hasErrors('dateOfBirth')} ? 'is-invalid'"/>
+                    <div class="field-error" th:if="${#fields.hasErrors('dateOfBirth')}" th:errors="*{dateOfBirth}"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="bloodType">Blood Type <span class="required">*</span></label>
+                    <select id="bloodType" th:field="*{bloodType}"
+                            th:classappend="${#fields.hasErrors('bloodType')} ? 'is-invalid'">
+                        <option value="">-- Select --</option>
+                        <option th:each="bt : ${'A+,A-,B+,B-,AB+,AB-,O+,O-'.split(',')}" th:value="${bt}" th:text="${bt}">O+</option>
+                    </select>
+                    <div class="field-error" th:if="${#fields.hasErrors('bloodType')}" th:errors="*{bloodType}"></div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" th:text="${patient.id == null ? 'Register Patient' : 'Save Changes'}">Save</button>
+                <a class="btn btn-secondary" th:href="@{/patients}">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
