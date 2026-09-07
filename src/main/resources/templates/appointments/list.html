@@ -15,6 +15,7 @@
         <a class="btn btn-primary" th:href="@{/appointments/new}">+ Book Appointment</a>
     </div>
 
+    <!-- Filter bar backed by GET /appointments?patientId=&doctorId=&status=&from=&to=&page= -->
     <div class="filter-bar">
         <form th:action="@{/appointments}" method="get">
             <div class="field">

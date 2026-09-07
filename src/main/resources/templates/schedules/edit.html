@@ -15,6 +15,7 @@
     <div class="card">
         <p class="text-muted" th:text="${slot.doctorFullName}">Doctor name</p>
 
+        <!-- Mirrors PUT /api/schedules/{id} -->
         <form th:action="@{/schedules/{id}/update(id=${slot.id})}" method="post">
             <div class="form-grid">
                 <div class="form-group">

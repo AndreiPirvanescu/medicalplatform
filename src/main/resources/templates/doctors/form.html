@@ -19,6 +19,18 @@
     </div>
 
     <div class="card">
+        <!--
+          "doctor" model attribute is a DoctorRequestDto: userId, licenseNumber,
+          specializations (List<Specialization>).
+
+          Create: GET  /medical-units/{unitId}/doctors/new  -> submits to
+                  POST /medical-units/{unitId}/doctors (DoctorController, calls
+                  the same doctorService.create used by the JSON API's
+                  POST /api/medicalUnits/{id}/doctors)
+          Edit:   GET  /doctors/{id}/edit -> submits to
+                  POST /doctors/{id}/update (DoctorController, calls the same
+                  doctorService.update used by PUT /api/doctors/{id})
+        -->
         <form th:action="${doctor.id == null}
                             ? @{/medical-units/{unitId}/doctors(unitId=${medicalUnit.id})}
                             : @{/doctors/{id}/update(id=${doctor.id})}"
@@ -27,13 +39,24 @@
             <div class="form-grid">
                 <div class="form-group">
                     <label for="userId">User <span class="required">*</span></label>
-                    <!-- "eligibleUsers" model attribute: users not yet linked to a doctor profile -->
+                    <!-- "eligibleUsers" model attribute is a UserRoleOptions (UserService.findEligibleDoctorUsers()): .users is the id/fullName/email list, .usedFallback is true when no user actually has role DOCTOR and we're showing everyone instead -->
+                    <div th:if="${eligibleUsers.usedFallback}" class="alert alert-warning" style="margin-bottom:10px;">
+                        No users are tagged with role <strong>DOCTOR</strong> yet, so every user is listed below.
+                        Assign that role to the right user to narrow this down.
+                    </div>
                     <select id="userId" th:field="*{userId}"
                             th:classappend="${#fields.hasErrors('userId')} ? 'is-invalid'">
                         <option value="">-- Select a user --</option>
-                        <option th:each="u : ${eligibleUsers}" th:value="${u.id}" th:text="${u.fullName}">User</option>
+                        <option th:each="u : ${eligibleUsers.users}" th:value="${u.id}"
+                                th:text="${u.fullName} + ' (' + ${u.email} + ')'">User</option>
                     </select>
                     <div class="field-error" th:if="${#fields.hasErrors('userId')}" th:errors="*{userId}"></div>
+                    <!-- "currentUser" model attribute: full UserResponseDto, present only when editing an existing doctor -->
+                    <div th:if="${currentUser != null}" class="text-muted" style="margin-top:6px; font-size:0.85rem;">
+                        Linked account: <strong th:text="${currentUser.fullName}">Name</strong>
+                        &middot; <span th:text="${currentUser.email}">email</span>
+                        &middot; <span th:text="${currentUser.phone}">phone</span>
+                    </div>
                 </div>
 
                 <div class="form-group">

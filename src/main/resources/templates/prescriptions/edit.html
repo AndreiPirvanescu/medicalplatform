@@ -24,6 +24,12 @@
             </div>
         </div>
 
+        <!--
+          Mirrors PUT /api/prescriptions/{id} (PrescriptionUpdateDto): this
+          REPLACES the whole medication list with whatever is checked here.
+          To add/remove one medication at a time instead, use the controls on
+          the prescription's View page.
+        -->
         <form th:action="@{/prescriptions/{id}/update(id=${prescription.id})}" method="post">
             <div class="form-group full-width">
                 <label for="notes">Notes</label>

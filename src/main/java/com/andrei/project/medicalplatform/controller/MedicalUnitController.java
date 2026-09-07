@@ -1,12 +1,13 @@
 package com.andrei.project.medicalplatform.controller;
 
-import com.andrei.project.medicalplatform.dto.common.UserOptionDto;
+import com.andrei.project.medicalplatform.dto.common.UserRoleOptions;
 import com.andrei.project.medicalplatform.dto.doctor.DoctorRequestDto;
 import com.andrei.project.medicalplatform.dto.doctor.DoctorResponseDto;
 import com.andrei.project.medicalplatform.dto.medicalunit.MedicalUnitRequestDto;
 import com.andrei.project.medicalplatform.dto.medicalunit.MedicalUnitResponseDto;
 import com.andrei.project.medicalplatform.service.DoctorService;
 import com.andrei.project.medicalplatform.service.MedicalUnitService;
+import com.andrei.project.medicalplatform.service.UserService;
 import com.andrei.project.medicalplatform.web.form.MedicalUnitFormDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,14 +24,28 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
-
+/**
+ * Medical unit controller: your original JSON API (unchanged, at
+ * /api/medicalUnits, now with explicit @ResponseBody + absolute paths since
+ * the class dropped its @RestController class-level mapping) plus the
+ * Thymeleaf pages for Feature 1 (Medical Unit Management).
+ *
+ * NOTE ON MedicalUnitRequestDto: you only shared MedicalUnitResponseDto with
+ * me, not the request-side DTO your create/update endpoints already use. I
+ * assumed it mirrors the response minus computed fields (name, email, phone,
+ * address, managerId) - if your real one differs, adjust MedicalUnitFormDto
+ * and the two spots below that build a MedicalUnitRequestDto from the form.
+ *
+ * TODO: "managers" (for the manager dropdown) is a placeholder - point it at
+ * your real "users eligible to manage a unit" query.
+ */
 @Controller
 @RequiredArgsConstructor
 public class MedicalUnitController {
 
     private final MedicalUnitService medicalUnitService;
     private final DoctorService doctorService;
-    // private final UserService userService; // TODO: wire up your real user lookup
+    private final UserService userService;
 
     // =========================================================
     // Existing JSON API - unchanged behavior, made explicit.
@@ -67,6 +82,15 @@ public class MedicalUnitController {
     @ResponseBody
     public ResponseEntity<MedicalUnitResponseDto> getByManager(@PathVariable Long managerId) {
         return ResponseEntity.ok(medicalUnitService.getByManagerId(managerId));
+    }
+
+    @GetMapping("/api/medicalUnits")
+    @ResponseBody
+    public ResponseEntity<Page<MedicalUnitResponseDto>> getAll(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String location,
+            @PageableDefault(size = 20, sort = "name") Pageable pageable) {
+        return ResponseEntity.ok(medicalUnitService.getAll(name, location, pageable));
     }
 
     @PostMapping("/api/medicalUnits/{id}/doctors")
@@ -151,6 +175,9 @@ public class MedicalUnitController {
 
         model.addAttribute("medicalUnit", form);
         model.addAttribute("managers", loadManagerOptions());
+        if (existing.managerId() != null) {
+            model.addAttribute("currentManager", userService.getById(existing.managerId()));
+        }
         return "medical-units/form";
     }
 
@@ -164,6 +191,9 @@ public class MedicalUnitController {
         if (result.hasErrors()) {
             form.setId(id);
             model.addAttribute("managers", loadManagerOptions());
+            if (form.getManagerId() != null) {
+                model.addAttribute("currentManager", userService.getById(form.getManagerId()));
+            }
             return "medical-units/form";
         }
 
@@ -183,8 +213,7 @@ public class MedicalUnitController {
         return "redirect:/medical-units";
     }
 
-    private List<UserOptionDto> loadManagerOptions() {
-        // TODO: replace with your real "users eligible to manage a unit" query
-        return List.of();
+    private UserRoleOptions loadManagerOptions() {
+        return userService.findManagers();
     }
 }

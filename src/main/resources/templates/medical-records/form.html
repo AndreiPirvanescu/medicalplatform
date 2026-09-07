@@ -13,6 +13,7 @@
     </div>
 
     <div class="card">
+        <!-- Mirrors POST /api/medical-records/for-patient/{patientId} -->
         <form th:action="@{/patients/{id}/medical-record(id=${patient.id})}" method="post">
             <div class="form-group full-width">
                 <label for="notes">Initial Notes</label>

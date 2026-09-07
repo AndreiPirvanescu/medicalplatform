@@ -303,6 +303,7 @@ td.actions-cell { white-space: nowrap; text-align: right; }
 }
 .alert-success { background: var(--color-success-light); color: var(--color-success); border: 1px solid #bbf7d0; }
 .alert-error { background: var(--color-danger-light); color: var(--color-danger); border: 1px solid #fecaca; }
+.alert-warning { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
 
 /* ---------- Pagination ---------- */
 

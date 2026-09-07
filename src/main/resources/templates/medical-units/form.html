@@ -15,6 +15,17 @@
     </div>
 
     <div class="card">
+        <!--
+          "medicalUnit" model attribute backs this form. Its request-side shape
+          (MedicalUnitRequestDto) wasn't shown to me, so this assumes the natural
+          mirror of MedicalUnitResponseDto minus computed fields:
+              name, email, phone, address, managerId
+          Adjust field names below to match your real DTO if it differs.
+
+          th:action switches between POST /medical-units (create) and
+          POST /medical-units/{id}/update (edit) - both handled in
+          MedicalUnitController alongside the JSON API.
+        -->
         <form th:action="${medicalUnit.id == null} ? @{/medical-units} : @{/medical-units/{id}/update(id=${medicalUnit.id})}"
               th:object="${medicalUnit}" method="post">
 
@@ -49,11 +60,22 @@
 
                 <div class="form-group">
                     <label for="managerId">Manager</label>
-                    <!-- "managers" model attribute: list of candidate manager users, each with id + fullName -->
+                    <!-- "managers" model attribute is a UserRoleOptions (UserService.findManagers()): .users is the id/fullName/email list, .usedFallback is true when no user actually has role MANAGER and we're showing everyone instead -->
+                    <div th:if="${managers.usedFallback}" class="alert alert-warning" style="margin-bottom:10px;">
+                        No users are tagged with role <strong>MANAGER</strong> yet, so every user is listed below.
+                        Assign that role to the right user to narrow this down.
+                    </div>
                     <select id="managerId" th:field="*{managerId}">
                         <option value="">-- Unassigned --</option>
-                        <option th:each="m : ${managers}" th:value="${m.id}" th:text="${m.fullName}">Manager name</option>
+                        <option th:each="m : ${managers.users}" th:value="${m.id}"
+                                th:text="${m.fullName} + ' (' + ${m.email} + ')'">Manager name</option>
                     </select>
+                    <!-- "currentManager" model attribute: full UserResponseDto, present only when editing a unit that already has a manager -->
+                    <div th:if="${currentManager != null}" class="text-muted" style="margin-top:6px; font-size:0.85rem;">
+                        Currently assigned: <strong th:text="${currentManager.fullName}">Name</strong>
+                        &middot; <span th:text="${currentManager.email}">email</span>
+                        &middot; <span th:text="${currentManager.phone}">phone</span>
+                    </div>
                 </div>
             </div>
 

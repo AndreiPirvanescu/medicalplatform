@@ -55,6 +55,7 @@
 
     <h2 class="section-title">Add a Time Slot</h2>
     <div class="card">
+        <!-- Mirrors POST /api/schedules/for-doctor/{doctorId} -->
         <form th:action="@{/doctors/{doctorId}/schedule(doctorId=${doctor.id})}" method="post">
             <div class="form-grid">
                 <div class="form-group">

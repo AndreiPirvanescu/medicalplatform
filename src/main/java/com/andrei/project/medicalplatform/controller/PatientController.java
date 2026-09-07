@@ -1,11 +1,12 @@
 package com.andrei.project.medicalplatform.controller;
 
-import com.andrei.project.medicalplatform.dto.common.UserOptionDto;
+import com.andrei.project.medicalplatform.dto.common.UserRoleOptions;
 import com.andrei.project.medicalplatform.dto.patient.PatientRequestDto;
 import com.andrei.project.medicalplatform.dto.patient.PatientResponseDto;
 import com.andrei.project.medicalplatform.service.AppointmentService;
 import com.andrei.project.medicalplatform.service.PatientService;
 import com.andrei.project.medicalplatform.service.PrescriptionService;
+import com.andrei.project.medicalplatform.service.UserService;
 import com.andrei.project.medicalplatform.web.form.PatientFormDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +20,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.util.List;
 
 /**
  * Patient controller: your original JSON API (unchanged, at /api/patients,
@@ -39,7 +38,7 @@ public class PatientController {
     private final PatientService patientService;
     private final AppointmentService appointmentService; // Feature 4 - shown on the patient detail page
     private final PrescriptionService prescriptionService; // Feature 7 - shown on the patient detail page
-    // private final UserService userService; // TODO: wire up your real user lookup
+    private final UserService userService;
 
     // =========================================================
     // Existing JSON API - unchanged behavior, made explicit.
@@ -146,6 +145,7 @@ public class PatientController {
 
         model.addAttribute("patient", form);
         model.addAttribute("eligibleUsers", loadEligibleUserOptions());
+        model.addAttribute("currentUser", userService.getById(existing.userId()));
         return "patients/form";
     }
 
@@ -159,6 +159,9 @@ public class PatientController {
         if (result.hasErrors()) {
             form.setId(id);
             model.addAttribute("eligibleUsers", loadEligibleUserOptions());
+            if (form.getUserId() != null) {
+                model.addAttribute("currentUser", userService.getById(form.getUserId()));
+            }
             return "patients/form";
         }
 
@@ -177,8 +180,7 @@ public class PatientController {
         return "redirect:/patients";
     }
 
-    private List<UserOptionDto> loadEligibleUserOptions() {
-        // TODO: replace with your real "users eligible to register as a patient" query
-        return List.of();
+    private UserRoleOptions loadEligibleUserOptions() {
+        return userService.findEligiblePatientUsers();
     }
 }

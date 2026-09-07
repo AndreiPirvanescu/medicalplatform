@@ -1,6 +1,6 @@
 package com.andrei.project.medicalplatform.controller;
 
-import com.andrei.project.medicalplatform.dto.common.UserOptionDto;
+import com.andrei.project.medicalplatform.dto.common.UserRoleOptions;
 import com.andrei.project.medicalplatform.dto.doctor.DoctorRequestDto;
 import com.andrei.project.medicalplatform.dto.doctor.DoctorResponseDto;
 import com.andrei.project.medicalplatform.dto.medicalunit.MedicalUnitResponseDto;
@@ -10,6 +10,7 @@ import com.andrei.project.medicalplatform.service.DoctorSearchService;
 import com.andrei.project.medicalplatform.service.DoctorService;
 import com.andrei.project.medicalplatform.service.MedicalUnitService;
 import com.andrei.project.medicalplatform.service.PrescriptionService;
+import com.andrei.project.medicalplatform.service.UserService;
 import com.andrei.project.medicalplatform.web.form.DoctorFormDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -55,7 +56,7 @@ public class DoctorController {
     private final MedicalUnitService medicalUnitService;
     private final AppointmentService appointmentService; // Feature 4 - shown on the doctor detail page
     private final PrescriptionService prescriptionService; // Feature 7 - shown on the doctor detail page
-    // private final UserService userService; // TODO: wire up your real user lookup
+    private final UserService userService;
 
     // =========================================================
     // Existing JSON API - unchanged behavior, made explicit since
@@ -212,6 +213,7 @@ public class DoctorController {
         model.addAttribute("medicalUnit", medicalUnitService.getById(existing.medicalUnitId()));
         model.addAttribute("doctor", form);
         model.addAttribute("eligibleUsers", loadEligibleUserOptions());
+        model.addAttribute("currentUser", userService.getById(existing.userId()));
         return "doctors/form";
     }
 
@@ -225,6 +227,9 @@ public class DoctorController {
         if (result.hasErrors()) {
             form.setId(id);
             model.addAttribute("eligibleUsers", loadEligibleUserOptions());
+            if (form.getUserId() != null) {
+                model.addAttribute("currentUser", userService.getById(form.getUserId()));
+            }
             return "doctors/form";
         }
 
@@ -263,8 +268,7 @@ public class DoctorController {
         return "redirect:/doctors/" + id;
     }
 
-    private List<UserOptionDto> loadEligibleUserOptions() {
-        // TODO: replace with your real "users eligible to become a doctor" query
-        return List.of();
+    private UserRoleOptions loadEligibleUserOptions() {
+        return userService.findEligibleDoctorUsers();
     }
 }

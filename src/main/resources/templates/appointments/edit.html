@@ -24,6 +24,11 @@
             </div>
         </div>
 
+        <!--
+          Mirrors PUT /api/appointments/{id} (AppointmentUpdateDto: appointmentDateTime + status).
+          Only date/time and status can change here - patient/doctor are fixed
+          once booked, matching AppointmentUpdateDto's shape.
+        -->
         <form th:action="@{/appointments/{id}/update(id=${appointment.id})}" method="post">
             <div class="form-grid">
                 <div class="form-group">
