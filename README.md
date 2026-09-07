@@ -150,6 +150,8 @@ Manager** and **Admin** users.
 * Get the overview statistics. (**GET** /api/admin/stats)
 
 ### IV. Entities
+
+![erd.png](docs/diagrams/erd.png)
 There are 10 entities:
 
 * User
@@ -165,9 +167,9 @@ There are 10 entities:
 
 with the following relationships:
 
-* 2 (*explicit*) Many to Many — **Doctor ↔ Specialization** (a doctor can have several specializations, a specialization can belong to several doctors) and **Prescription ↔ Medication** (a prescription can include several medications, a medication can appear on several prescriptions).
+* 2 Many to Many —  **Prescription ↔ Medication** (a prescription can include several medications, a medication can appear on several prescriptions), **Role ↔ User**
 * 4 One to One — **User ↔ MedicalUnit** (a medical unit is run by exactly one manager user), **User ↔ Doctor** (a doctor account maps to exactly one user login), **User ↔ Patient** (a patient account maps to exactly one user login), **Patient ↔ MedicalRecord** (each patient has exactly one central medical record).
-* 5 One to Many / Many to One — **Role → User**, **MedicalUnit → Doctor** (a medical unit employs several doctors), **Doctor → Appointment**, **Patient → Appointment**, **Doctor → Prescription**.
+* 4 One to Many / Many to One — **MedicalUnit → Doctor** (a medical unit employs several doctors), **Doctor → Appointment**, **Patient → Appointment**, **Doctor → Prescription**.
 
 ### V. Architecture
 

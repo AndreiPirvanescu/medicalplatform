@@ -18,11 +18,8 @@ public class Patient {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
-    @Column(name = "phone_number")
-    private String phoneNumber;
-
-    @Column(name = "birth_date")
-    private LocalDate birthDate;
+    @Column(name = "date_of_birth")
+    private LocalDate dateOfBirth;
 
     @Column(name = "blood_type")
     private String bloodType;

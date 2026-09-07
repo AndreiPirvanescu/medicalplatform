@@ -14,8 +14,8 @@ public class PatientToPatientResponseDTOMapper {
                 .email(patient.getUser().getEmail())
                 .firstName(patient.getUser().getFirstName())
                 .lastName(patient.getUser().getLastName())
-                .phoneNumber(patient.getPhoneNumber())
-                .birthDate(patient.getBirthDate())
+//                .phoneNumber(patient.getPhoneNumber())
+//                .birthDate(patient.getBirthDate())
                 .bloodType(patient.getBloodType())
                 .build();
     }

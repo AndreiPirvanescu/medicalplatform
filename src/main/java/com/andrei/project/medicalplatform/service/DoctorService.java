@@ -5,7 +5,6 @@ import com.andrei.project.medicalplatform.dto.doctor.DoctorResponseDTO;
 import com.andrei.project.medicalplatform.exception.EmailAlreadyExistsException;
 import com.andrei.project.medicalplatform.mapper.DoctorToDoctorResponseDTOMapper;
 import com.andrei.project.medicalplatform.model.Doctor;
-import com.andrei.project.medicalplatform.model.Role;
 import com.andrei.project.medicalplatform.model.User;
 import com.andrei.project.medicalplatform.repository.DoctorRepository;
 import com.andrei.project.medicalplatform.repository.UserRepository;
@@ -37,7 +36,7 @@ public class DoctorService {
         user.setPassword(doctorDto.password()); // TODO: Aici ar trebui passwordEncoder.encode(dto.getPassword())
         user.setFirstName(doctorDto.firstName());
         user.setLastName(doctorDto.lastName());
-        user.setRole(Role.DOCTOR);
+//        user.setRole(Role.DOCTOR);
         User savedUser = userRepository.save(user);
 
         Doctor doctor = new Doctor();

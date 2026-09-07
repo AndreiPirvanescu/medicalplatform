@@ -1,5 +1,5 @@
 erDiagram
-  Role ||--o{ User : has
+  Role }|--o{ User : has
   User ||--|| MedicalUnit : manages
   User ||--|| Doctor : is
   User ||--|| Patient : is
@@ -51,26 +51,26 @@ erDiagram
     Long id PK
     Long userId FK
     Date dateOfBirth
-    String address
+    String bloodType
   }
   Appointment {
     Long id PK
-    Timestamp date
+    LocalDateTime date
     String status
     Long patientId FK
     Long doctorId FK
   }
   Schedule {
     Long id PK
-    Timestamp startTime
-    Timestamp endTime
+    LocalDateTime startTime
+    LocalDateTime endTime
     Boolean available
     Long doctorId FK
   }
   MedicalRecord {
     Long id PK
     Long patientId FK
-    Timestamp createdDate
+    LocalDateTime createdDate
     String notes
   }
   Prescription {
@@ -78,7 +78,7 @@ erDiagram
     Long patientId FK
     Long doctorId FK
     Long appointmentId FK
-    Timestamp issueDate
+    LocalDateTime issueDate
     String notes
   }
   Medication {

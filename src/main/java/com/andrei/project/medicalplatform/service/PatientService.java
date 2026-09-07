@@ -5,7 +5,6 @@ import com.andrei.project.medicalplatform.dto.patient.PatientResponseDTO;
 import com.andrei.project.medicalplatform.exception.EmailAlreadyExistsException;
 import com.andrei.project.medicalplatform.mapper.PatientToPatientResponseDTOMapper;
 import com.andrei.project.medicalplatform.model.Patient;
-import com.andrei.project.medicalplatform.model.Role;
 import com.andrei.project.medicalplatform.model.User;
 import com.andrei.project.medicalplatform.repository.PatientRepository;
 import com.andrei.project.medicalplatform.repository.UserRepository;
@@ -37,13 +36,13 @@ public class PatientService {
         user.setPassword(dto.getPassword()); // TODO: passwordEncoder.encode(dto.getPassword())
         user.setFirstName(dto.getFirstName());
         user.setLastName(dto.getLastName());
-        user.setRole(Role.PATIENT);
+//        user.setRole(Role.PATIENT);
         User savedUser = userRepository.save(user);
 
         Patient patient = new Patient();
         patient.setUser(savedUser);
-        patient.setPhoneNumber(dto.getPhoneNumber());
-        patient.setBirthDate(dto.getBirthDate());
+//        patient.setPhoneNumber(dto.getPhoneNumber());
+//        patient.setBirthDate(dto.getBirthDate());
         patient.setBloodType(dto.getBloodType());
 
         Patient savedPatient = patientRepository.save(patient);
@@ -74,8 +73,8 @@ public class PatientService {
         user.setLastName(dto.getLastName());
         userRepository.save(user);
 
-        patient.setPhoneNumber(dto.getPhoneNumber());
-        patient.setBirthDate(dto.getBirthDate());
+//        patient.setPhoneNumber(dto.getPhoneNumber());
+//        patient.setBirthDate(dto.getBirthDate());
         patient.setBloodType(dto.getBloodType());
 
         Patient updatedPatient = patientRepository.save(patient);
