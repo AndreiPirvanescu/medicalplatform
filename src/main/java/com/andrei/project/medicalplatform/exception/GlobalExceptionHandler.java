@@ -110,4 +110,12 @@ public class GlobalExceptionHandler {
         return problem;
     }
 
+    @ExceptionHandler(InvalidPrescriptionAppointmentException.class)
+    public ProblemDetail handleInvalidPrescriptionAppointmentException(InvalidPrescriptionAppointmentException e) {
+        var problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problem.setTitle("Invalid prescription appointment.");
+        problem.setDetail(e.getMessage());
+        return problem;
+    }
+
 }
