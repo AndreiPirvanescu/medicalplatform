@@ -1,92 +1,86 @@
 package com.andrei.project.medicalplatform.service;
 
-import com.andrei.project.medicalplatform.dto.patient.PatientRegistrationDTO;
-import com.andrei.project.medicalplatform.dto.patient.PatientResponseDTO;
-import com.andrei.project.medicalplatform.exception.EmailAlreadyExistsException;
-import com.andrei.project.medicalplatform.mapper.PatientToPatientResponseDTOMapper;
+import com.andrei.project.medicalplatform.dto.patient.PatientRequestDto;
+import com.andrei.project.medicalplatform.dto.patient.PatientResponseDto;
+import com.andrei.project.medicalplatform.exception.UserAlreadyPatientException;
+import com.andrei.project.medicalplatform.mapper.PatientMapper;
 import com.andrei.project.medicalplatform.model.Patient;
 import com.andrei.project.medicalplatform.model.User;
 import com.andrei.project.medicalplatform.repository.PatientRepository;
 import com.andrei.project.medicalplatform.repository.UserRepository;
+import com.andrei.project.medicalplatform.repository.spec.PatientSpecifications;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class PatientService {
 
     private final PatientRepository patientRepository;
     private final UserRepository userRepository;
-    private final PatientToPatientResponseDTOMapper patientToPatientResponseDTOMapper;
-    // private final PasswordEncoder passwordEncoder;
+    private final PatientMapper mapper;
 
-    @Transactional
-    public PatientResponseDTO registerPatient(PatientRegistrationDTO dto) {
-        if (userRepository.existsByEmail(dto.getEmail())) {
-            throw new EmailAlreadyExistsException("Un utilizator cu acest email există deja.");
+    public PatientResponseDto create(PatientRequestDto request) {
+        User user = getUserOrThrow(request.userId());
+
+        if (patientRepository.existsByUser_Id(user.getId())) {
+            throw new UserAlreadyPatientException(
+                    "User with id " + user.getId() + " is already registered as a patient");
         }
 
-        User user = new User();
-        user.setEmail(dto.getEmail());
-        user.setPassword(dto.getPassword()); // TODO: passwordEncoder.encode(dto.getPassword())
-        user.setFirstName(dto.getFirstName());
-        user.setLastName(dto.getLastName());
-//        user.setRole(Role.PATIENT);
-        User savedUser = userRepository.save(user);
-
         Patient patient = new Patient();
-        patient.setUser(savedUser);
-//        patient.setPhoneNumber(dto.getPhoneNumber());
-//        patient.setBirthDate(dto.getBirthDate());
-        patient.setBloodType(dto.getBloodType());
+        patient.setUser(user);
+        patient.setDateOfBirth(request.dateOfBirth());
+        patient.setBloodType(request.bloodType());
 
-        Patient savedPatient = patientRepository.save(patient);
-        return patientToPatientResponseDTOMapper.mapToResponseDto(savedPatient);
+        return mapper.toDto(patientRepository.save(patient));
+    }
+
+    public PatientResponseDto update(Long id, PatientRequestDto request) {
+        Patient patient = getPatientOrThrow(id);
+
+        if (!patient.getUser().getId().equals(request.userId())) {
+            if (patientRepository.existsByUser_Id(request.userId())) {
+                throw new UserAlreadyPatientException(
+                        "User with id " + request.userId() + " is already registered as a patient");
+            }
+            patient.setUser(getUserOrThrow(request.userId()));
+        }
+
+        patient.setDateOfBirth(request.dateOfBirth());
+        patient.setBloodType(request.bloodType());
+
+        return mapper.toDto(patientRepository.save(patient));
+    }
+
+    public void delete(Long id) {
+        patientRepository.delete(getPatientOrThrow(id));
     }
 
     @Transactional(readOnly = true)
-    public List<PatientResponseDTO> getAllPatients() {
-        return patientRepository.findAll().stream()
-                .map(patientToPatientResponseDTOMapper::mapToResponseDto)
-                .collect(Collectors.toList());
+    public PatientResponseDto getById(Long id) {
+        return mapper.toDto(getPatientOrThrow(id));
     }
 
     @Transactional(readOnly = true)
-    public PatientResponseDTO getPatientById(Long id) {
-        Patient patient = patientRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Pacientul cu ID-ul " + id + " nu a fost găsit."));
-        return patientToPatientResponseDTOMapper.mapToResponseDto(patient);
+    public Page<PatientResponseDto> getAll(String firstName, String lastName, Pageable pageable) {
+        return patientRepository
+                .findAll(PatientSpecifications.filterBy(firstName, lastName), pageable)
+                .map(mapper::toDto);
     }
 
-    @Transactional
-    public PatientResponseDTO updatePatient(Long id, PatientRegistrationDTO dto) {
-        Patient patient = patientRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Pacientul cu ID-ul " + id + " nu a fost găsit."));
-
-        User user = patient.getUser();
-        user.setFirstName(dto.getFirstName());
-        user.setLastName(dto.getLastName());
-        userRepository.save(user);
-
-//        patient.setPhoneNumber(dto.getPhoneNumber());
-//        patient.setBirthDate(dto.getBirthDate());
-        patient.setBloodType(dto.getBloodType());
-
-        Patient updatedPatient = patientRepository.save(patient);
-        return patientToPatientResponseDTOMapper.mapToResponseDto(updatedPatient);
+    private Patient getPatientOrThrow(Long id) {
+        return patientRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Patient not found with id " + id));
     }
 
-    @Transactional
-    public void deletePatient(Long id) {
-        Patient patient = patientRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Pacientul cu ID-ul " + id + " nu a fost găsit."));
-
-        patientRepository.delete(patient);
-        userRepository.delete(patient.getUser());
+    private User getUserOrThrow(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id " + id));
     }
 }

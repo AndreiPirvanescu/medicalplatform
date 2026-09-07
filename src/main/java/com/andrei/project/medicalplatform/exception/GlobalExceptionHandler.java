@@ -70,4 +70,13 @@ public class GlobalExceptionHandler {
         return problem;
     }
 
+    @ExceptionHandler(UserAlreadyPatientException.class)
+    public ProblemDetail handleUserAlreadyPatientException(UserAlreadyPatientException e) {
+        var problem = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        problem.setTitle("User already a patient.");
+        problem.setDetail(e.getMessage());
+        return problem;
+    }
+
+
 }
