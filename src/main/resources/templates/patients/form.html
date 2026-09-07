@@ -13,9 +13,6 @@
     </div>
 
     <div class="card">
-        <!--
-          "patient" model attribute is a PatientRequestDto: userId, dateOfBirth, bloodType.
-        -->
         <form th:action="${patient.id == null} ? @{/patients} : @{/patients/{id}/update(id=${patient.id})}"
               th:object="${patient}" method="post">
 

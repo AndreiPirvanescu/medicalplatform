@@ -44,7 +44,6 @@
     <h2 class="section-title">Manage Specializations</h2>
     <div class="card">
         <div class="form-grid" style="align-items:end;">
-            <!-- POST /doctors/{id}/specializations -> mirrors POST /api/doctors/{id}/specializations/{specId} -->
             <form th:action="@{/doctors/{id}/specializations(id=${doctor.id})}" method="post" class="form-group">
                 <label for="addSpec">Add specialization</label>
                 <div style="display:flex; gap:8px;">
@@ -72,8 +71,6 @@
         <h2 class="section-title" style="border:none;margin:0;">Appointments</h2>
         <a class="btn btn-primary btn-sm" th:href="@{/appointments/new(doctorId=${doctor.id})}">+ Book Appointment</a>
     </div>
-
-    <!-- "appointments" model attribute: List<AppointmentResponseDto> for this doctor (Feature 4) -->
     <div class="table-wrapper">
         <table>
             <thead>
@@ -105,7 +102,6 @@
         <a class="btn btn-primary btn-sm" th:href="@{/prescriptions/new(doctorId=${doctor.id})}">+ Issue Prescription</a>
     </div>
 
-    <!-- "prescriptions" model attribute: Page<PrescriptionResponseDto> issued by this doctor (Feature 7) -->
     <div class="table-wrapper">
         <table>
             <thead>

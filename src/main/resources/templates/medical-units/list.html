@@ -15,11 +15,6 @@
         <a class="btn btn-primary" th:href="@{/medical-units/new}">+ Add Medical Unit</a>
     </div>
 
-    <!--
-      Filter bar. Backed by GET /medical-units?name=&location=&page=&size=&sort=
-      "filter" is a small holder object (or just use request params directly with
-      th:value="${param.name}" style if you don't have a backing bean).
-    -->
     <div class="filter-bar">
         <form th:action="@{/medical-units}" method="get">
             <div class="field">

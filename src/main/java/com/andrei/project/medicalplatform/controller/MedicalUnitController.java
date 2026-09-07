@@ -23,21 +23,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
-/**
- * Medical unit controller: your original JSON API (unchanged, at
- * /api/medicalUnits, now with explicit @ResponseBody + absolute paths since
- * the class dropped its @RestController class-level mapping) plus the
- * Thymeleaf pages for Feature 1 (Medical Unit Management).
- *
- * NOTE ON MedicalUnitRequestDto: you only shared MedicalUnitResponseDto with
- * me, not the request-side DTO your create/update endpoints already use. I
- * assumed it mirrors the response minus computed fields (name, email, phone,
- * address, managerId) - if your real one differs, adjust MedicalUnitFormDto
- * and the two spots below that build a MedicalUnitRequestDto from the form.
- *
- * TODO: "managers" (for the manager dropdown) is a placeholder - point it at
- * your real "users eligible to manage a unit" query.
- */
+
 @Controller
 @RequiredArgsConstructor
 public class MedicalUnitController {
@@ -81,15 +67,6 @@ public class MedicalUnitController {
     @ResponseBody
     public ResponseEntity<MedicalUnitResponseDto> getByManager(@PathVariable Long managerId) {
         return ResponseEntity.ok(medicalUnitService.getByManagerId(managerId));
-    }
-
-    @GetMapping("/api/medicalUnits")
-    @ResponseBody
-    public ResponseEntity<Page<MedicalUnitResponseDto>> getAll(
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) String location,
-            @PageableDefault(size = 20, sort = "name") Pageable pageable) {
-        return ResponseEntity.ok(medicalUnitService.getAll(name, location, pageable));
     }
 
     @PostMapping("/api/medicalUnits/{id}/doctors")

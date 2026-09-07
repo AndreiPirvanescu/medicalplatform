@@ -13,7 +13,6 @@
     </div>
 
     <div class="card">
-        <!-- Mirrors PUT /api/medical-records/{id} -->
         <form th:action="@{/medical-records/{id}/update(id=${record.id})}" method="post">
             <input type="hidden" name="patientId" th:value="${patient.id}"/>
             <div class="form-group full-width">

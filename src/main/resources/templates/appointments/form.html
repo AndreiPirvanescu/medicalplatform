@@ -14,11 +14,6 @@
 
     <div class="alert alert-error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
 
-    <!--
-      Step 1: pick a patient + doctor. This is a plain GET so picking a
-      different doctor reloads the page and refreshes "Available slots"
-      below without needing any JS fetch.
-    -->
     <div class="card">
         <h2 class="section-title mt-0" style="margin-top:0;">1. Choose patient &amp; doctor</h2>
         <form th:action="@{/appointments/new}" method="get">
@@ -47,7 +42,6 @@
         </form>
     </div>
 
-    <!-- Step 2: pick a date/time and confirm. -->
     <div class="card" style="margin-top:20px;">
         <h2 class="section-title mt-0" style="margin-top:0;">2. Choose a time</h2>
 

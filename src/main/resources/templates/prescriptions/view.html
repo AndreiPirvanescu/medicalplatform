@@ -74,7 +74,6 @@
         </div>
         <p class="text-muted" th:if="${prescription.medications.isEmpty()}">No medications on this prescription.</p>
 
-        <!-- Mirrors POST /api/prescriptions/{id}/medications/{medicationId} -->
         <form th:action="@{/prescriptions/{id}/medications(id=${prescription.id})}" method="post" style="margin-top:16px;">
             <div style="display:flex; gap:8px; align-items:end;">
                 <div class="form-group" style="margin-bottom:0;">

@@ -14,7 +14,6 @@
 
     <div class="alert alert-error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
 
-    <!-- Step 1: pick patient + doctor (GET reload, so the appointment list below refreshes for the chosen patient) -->
     <div class="card">
         <h2 class="section-title mt-0" style="margin-top:0;">1. Choose patient &amp; doctor</h2>
         <form th:action="@{/prescriptions/new}" method="get">
@@ -43,7 +42,6 @@
         </form>
     </div>
 
-    <!-- Step 2: notes, optional linked appointment, medications -->
     <div class="card" style="margin-top:20px;">
         <h2 class="section-title mt-0" style="margin-top:0;">2. Prescription details</h2>
 

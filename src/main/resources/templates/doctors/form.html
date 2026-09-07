@@ -19,18 +19,6 @@
     </div>
 
     <div class="card">
-        <!--
-          "doctor" model attribute is a DoctorRequestDto: userId, licenseNumber,
-          specializations (List<Specialization>).
-
-          Create: GET  /medical-units/{unitId}/doctors/new  -> submits to
-                  POST /medical-units/{unitId}/doctors (DoctorController, calls
-                  the same doctorService.create used by the JSON API's
-                  POST /api/medicalUnits/{id}/doctors)
-          Edit:   GET  /doctors/{id}/edit -> submits to
-                  POST /doctors/{id}/update (DoctorController, calls the same
-                  doctorService.update used by PUT /api/doctors/{id})
-        -->
         <form th:action="${doctor.id == null}
                             ? @{/medical-units/{unitId}/doctors(unitId=${medicalUnit.id})}
                             : @{/doctors/{id}/update(id=${doctor.id})}"

@@ -12,15 +12,9 @@
             <h1>Doctors</h1>
             <p class="subtitle">Search and manage doctors across all medical units.</p>
         </div>
-        <!-- Adding a doctor is scoped to a unit (POST /api/medicalUnits/{id}/doctors),
-             so send users to pick a unit first rather than a generic "new doctor" link. -->
         <a class="btn btn-primary" th:href="@{/medical-units}">+ Add Doctor (via a unit)</a>
     </div>
 
-    <!--
-      Filter bar backed by GET /doctors?name=&specialization=&medicalUnitId=&available=
-      Maps to GET /api/doctors (filters) or GET /api/doctors/search (adds availability).
-    -->
     <div class="filter-bar">
         <form th:action="@{/doctors}" method="get">
             <div class="field">
