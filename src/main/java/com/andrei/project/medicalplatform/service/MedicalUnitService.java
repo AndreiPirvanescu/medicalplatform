@@ -9,7 +9,7 @@ import com.andrei.project.medicalplatform.model.MedicalUnit;
 import com.andrei.project.medicalplatform.model.User;
 import com.andrei.project.medicalplatform.repository.MedicalUnitRepository;
 import com.andrei.project.medicalplatform.repository.UserRepository;
-import com.andrei.project.medicalplatform.repository.MedicalUnitSpecifications;
+import com.andrei.project.medicalplatform.repository.spec.MedicalUnitSpecifications;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

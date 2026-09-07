@@ -1,4 +1,4 @@
-package com.andrei.project.medicalplatform.repository;
+package com.andrei.project.medicalplatform.repository.spec;
 
 import com.andrei.project.medicalplatform.model.MedicalUnit;
 import org.springframework.data.jpa.domain.Specification;

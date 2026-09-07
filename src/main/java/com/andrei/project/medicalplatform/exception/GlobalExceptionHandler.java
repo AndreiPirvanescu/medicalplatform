@@ -54,4 +54,20 @@ public class GlobalExceptionHandler {
         return problem;
     }
 
+    @ExceptionHandler(UserAlreadyDoctorException.class)
+    public ProblemDetail handleUserAlreadyDoctorException(UserAlreadyDoctorException e) {
+        var problem = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        problem.setTitle("User already a doctor.");
+        problem.setDetail(e.getMessage());
+        return problem;
+    }
+
+    @ExceptionHandler(SpecializationAlreadyExistsException.class)
+    public ProblemDetail handleSpecializationAlreadyExistsException(SpecializationAlreadyExistsException e) {
+        var problem = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        problem.setTitle("Specialization already assigned.");
+        problem.setDetail(e.getMessage());
+        return problem;
+    }
+
 }

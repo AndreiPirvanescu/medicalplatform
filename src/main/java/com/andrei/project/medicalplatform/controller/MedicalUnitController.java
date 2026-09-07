@@ -1,7 +1,10 @@
 package com.andrei.project.medicalplatform.controller;
 
+import com.andrei.project.medicalplatform.dto.doctor.DoctorRequestDto;
+import com.andrei.project.medicalplatform.dto.doctor.DoctorResponseDto;
 import com.andrei.project.medicalplatform.dto.medicalunit.MedicalUnitRequestDto;
 import com.andrei.project.medicalplatform.dto.medicalunit.MedicalUnitResponseDto;
+import com.andrei.project.medicalplatform.service.DoctorService;
 import com.andrei.project.medicalplatform.service.MedicalUnitService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +14,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/medicalUnits")
@@ -53,5 +58,18 @@ public class MedicalUnitController {
             @RequestParam(required = false) String location,
             @PageableDefault(size = 20, sort = "name") Pageable pageable) {
         return ResponseEntity.ok(medicalUnitService.getAll(name, location, pageable));
+    }
+
+    private final DoctorService doctorService;
+
+    @PostMapping("/{id}/doctors")
+    public ResponseEntity<DoctorResponseDto> addDoctor(
+            @PathVariable Long id, @Valid @RequestBody DoctorRequestDto request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(doctorService.create(id, request));
+    }
+
+    @GetMapping("/{id}/doctors")
+    public ResponseEntity<List<DoctorResponseDto>> getDoctors(@PathVariable Long id) {
+        return ResponseEntity.ok(doctorService.getByMedicalUnit(id));
     }
 }
