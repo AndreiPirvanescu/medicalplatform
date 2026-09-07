@@ -78,5 +78,36 @@ public class GlobalExceptionHandler {
         return problem;
     }
 
+    @ExceptionHandler(TimeSlotUnavailableException.class)
+    public ProblemDetail handleTimeSlotUnavailableException(TimeSlotUnavailableException e) {
+        var problem = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        problem.setTitle("Time slot unavailable.");
+        problem.setDetail(e.getMessage());
+        return problem;
+    }
+
+    @ExceptionHandler(InvalidAppointmentStatusException.class)
+    public ProblemDetail handleInvalidAppointmentStatusException(InvalidAppointmentStatusException e) {
+        var problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problem.setTitle("Invalid appointment status.");
+        problem.setDetail(e.getMessage());
+        return problem;
+    }
+
+    @ExceptionHandler(ScheduleOverlapException.class)
+    public ProblemDetail handleScheduleOverlapException(ScheduleOverlapException e) {
+        var problem = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        problem.setTitle("Schedule overlap.");
+        problem.setDetail(e.getMessage());
+        return problem;
+    }
+
+    @ExceptionHandler(InvalidScheduleTimeException.class)
+    public ProblemDetail handleInvalidScheduleTimeException(InvalidScheduleTimeException e) {
+        var problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problem.setTitle("Invalid schedule time.");
+        problem.setDetail(e.getMessage());
+        return problem;
+    }
 
 }
