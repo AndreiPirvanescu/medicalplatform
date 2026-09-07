@@ -58,6 +58,7 @@ Manager** and **Admin** users.
 * Get a particular doctor. (**GET** /api/doctors/{id})
 * Get a list of a particular medical unit's doctors. (**GET** /api/medicalUnits/{id}/doctors)
 * Add/remove a specialization for a doctor. (**POST**/**DELETE** /api/doctors/{id}/specializations/{specId})
+* Search doctors by name, specialization, medical unit or availability. (**GET** /api/doctors/search)
 * Filter by name, specialization, medical unit id.
 
 ### Feature 3 ~ Patient Management
@@ -133,16 +134,7 @@ Manager** and **Admin** users.
 * Get a patient's medication/treatment history. (**GET** /api/medications/by-patient/{patientId}/history)
 * Filter by name, patient id.
 
-### Feature 9 ~ Doctor & Specialization Search
-
-**Requirements:** 11. \
-**Description:** Patients can search for doctors by name, specialization, medical unit or availability to find the right professional for their needs. \
-**Actions:**
-* Search doctors by name, specialization, medical unit or availability. (**GET** /api/search/doctors)
-* Get a list of all specializations. (**GET** /api/specializations)
-* Get doctors for a particular specialization. (**GET** /api/specializations/{id}/doctors)
-
-### Feature 10 ~ Admin Dashboard
+### Feature 9 ~ Admin Dashboard
 
 **Requirements:** 1. & 12. \
 **Description:** The administrator can view a summary of the platform's activity (total medical units, doctors, patients, appointments and prescriptions). \
