@@ -60,6 +60,7 @@ CREATE TABLE medical_units (
                                address    VARCHAR(255),
                                manager_id BIGINT,
                                CONSTRAINT uk_medical_units_manager UNIQUE (manager_id),
+                               CONSTRAINT uk_medical_units_email UNIQUE (email),
                                CONSTRAINT fk_medical_units_manager FOREIGN KEY (manager_id) REFERENCES users (id)
 );
 

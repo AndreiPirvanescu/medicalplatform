@@ -16,6 +16,7 @@ public class MedicalUnit {
 
     private String name;
 
+    @Column(unique = true, nullable = false, length = 100)
     private String email;
 
     private String phone;

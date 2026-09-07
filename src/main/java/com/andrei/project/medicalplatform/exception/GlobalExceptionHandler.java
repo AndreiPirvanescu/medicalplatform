@@ -46,5 +46,12 @@ public class GlobalExceptionHandler {
         return problem;
     }
 
+    @ExceptionHandler(ManagerAlreadyAssignedException.class)
+    public ProblemDetail handleManagerAlreadyAssignedException(ManagerAlreadyAssignedException e) {
+        var problem = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        problem.setTitle("Manager already assigned.");
+        problem.setDetail(e.getMessage());
+        return problem;
+    }
 
 }
