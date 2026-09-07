@@ -5,6 +5,7 @@ import com.andrei.project.medicalplatform.dto.doctor.DoctorRequestDto;
 import com.andrei.project.medicalplatform.dto.doctor.DoctorResponseDto;
 import com.andrei.project.medicalplatform.dto.medicalunit.MedicalUnitResponseDto;
 import com.andrei.project.medicalplatform.model.Specialization;
+import com.andrei.project.medicalplatform.service.AppointmentService;
 import com.andrei.project.medicalplatform.service.DoctorSearchService;
 import com.andrei.project.medicalplatform.service.DoctorService;
 import com.andrei.project.medicalplatform.service.MedicalUnitService;
@@ -51,6 +52,7 @@ public class DoctorController {
     private final DoctorService doctorService;
     private final DoctorSearchService doctorSearchService;
     private final MedicalUnitService medicalUnitService;
+    private final AppointmentService appointmentService; // Feature 4 - shown on the doctor detail page
     // private final UserService userService; // TODO: wire up your real user lookup
 
     // =========================================================
@@ -153,6 +155,7 @@ public class DoctorController {
     @GetMapping("/doctors/{id}")
     public String view(@PathVariable Long id, Model model) {
         model.addAttribute("doctor", doctorService.getById(id));
+        model.addAttribute("appointments", appointmentService.getByDoctor(id)); // Feature 4
         return "doctors/view";
     }
 

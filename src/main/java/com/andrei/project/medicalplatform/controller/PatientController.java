@@ -3,6 +3,7 @@ package com.andrei.project.medicalplatform.controller;
 import com.andrei.project.medicalplatform.dto.common.UserOptionDto;
 import com.andrei.project.medicalplatform.dto.patient.PatientRequestDto;
 import com.andrei.project.medicalplatform.dto.patient.PatientResponseDto;
+import com.andrei.project.medicalplatform.service.AppointmentService;
 import com.andrei.project.medicalplatform.service.PatientService;
 import com.andrei.project.medicalplatform.web.form.PatientFormDto;
 import jakarta.validation.Valid;
@@ -35,6 +36,7 @@ import java.util.List;
 public class PatientController {
 
     private final PatientService patientService;
+    private final AppointmentService appointmentService; // Feature 4 - shown on the patient detail page
     // private final UserService userService; // TODO: wire up your real user lookup
 
     // =========================================================
@@ -97,6 +99,7 @@ public class PatientController {
     @GetMapping("/patients/{id}")
     public String view(@PathVariable Long id, Model model) {
         model.addAttribute("patient", patientService.getById(id));
+        model.addAttribute("appointments", appointmentService.getByPatient(id)); // Feature 4
         return "patients/view";
     }
 

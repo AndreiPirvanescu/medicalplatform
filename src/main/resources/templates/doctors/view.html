@@ -15,6 +15,7 @@
             </p>
         </div>
         <div class="btn-group">
+            <a class="btn btn-secondary" th:href="@{/doctors/{id}/schedule(id=${doctor.id})}">Manage Schedule</a>
             <a class="btn btn-secondary" th:href="@{/doctors/{id}/edit(id=${doctor.id})}">Edit</a>
             <a class="btn btn-secondary" th:href="@{/doctors}">&larr; Back to list</a>
         </div>
@@ -43,6 +44,7 @@
     <h2 class="section-title">Manage Specializations</h2>
     <div class="card">
         <div class="form-grid" style="align-items:end;">
+            <!-- POST /doctors/{id}/specializations -> mirrors POST /api/doctors/{id}/specializations/{specId} -->
             <form th:action="@{/doctors/{id}/specializations(id=${doctor.id})}" method="post" class="form-group">
                 <label for="addSpec">Add specialization</label>
                 <div style="display:flex; gap:8px;">
@@ -64,6 +66,38 @@
                         onclick="return confirm('Remove this specialization?');">Remove SPEC</button>
             </form>
         </div>
+    </div>
+
+    <div class="page-header" style="margin-top:8px;">
+        <h2 class="section-title" style="border:none;margin:0;">Appointments</h2>
+        <a class="btn btn-primary btn-sm" th:href="@{/appointments/new(doctorId=${doctor.id})}">+ Book Appointment</a>
+    </div>
+
+    <!-- "appointments" model attribute: List<AppointmentResponseDto> for this doctor (Feature 4) -->
+    <div class="table-wrapper">
+        <table>
+            <thead>
+            <tr>
+                <th>Date &amp; Time</th>
+                <th>Patient</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="appt : ${appointments}">
+                <td th:text="${#temporals.format(appt.appointmentDateTime, 'dd MMM yyyy, HH:mm')}">01 Jan 2026, 10:00</td>
+                <td><a th:href="@{/patients/{id}(id=${appt.patientId})}" th:text="${appt.patientFullName}">Patient</a></td>
+                <td><span class="badge" th:text="${appt.status}">STATUS</span></td>
+                <td class="actions-cell">
+                    <a class="btn btn-secondary btn-sm" th:href="@{/appointments/{id}(id=${appt.id})}">View</a>
+                </td>
+            </tr>
+            <tr th:if="${appointments.isEmpty()}">
+                <td colspan="4" class="empty-state">No appointments yet.</td>
+            </tr>
+            </tbody>
+        </table>
     </div>
 
 </main>

@@ -15,6 +15,11 @@
         <a class="btn btn-primary" th:href="@{/medical-units/new}">+ Add Medical Unit</a>
     </div>
 
+    <!--
+      Filter bar. Backed by GET /medical-units?name=&location=&page=&size=&sort=
+      "filter" is a small holder object (or just use request params directly with
+      th:value="${param.name}" style if you don't have a backing bean).
+    -->
     <div class="filter-bar">
         <form th:action="@{/medical-units}" method="get">
             <div class="field">
@@ -40,6 +45,7 @@
         <table>
             <thead>
             <tr>
+                <!-- sort links toggle asc/desc; controller reads ?sort=field,dir -->
                 <th><a th:href="@{/medical-units(name=${param.name}, location=${param.location}, sort='name')}">Name</a></th>
                 <th>Email</th>
                 <th>Phone</th>
@@ -80,6 +86,7 @@
         </table>
     </div>
 
+    <!-- Pagination: expects medicalUnits to be an org.springframework.data.domain.Page -->
     <nav class="pagination" th:if="${medicalUnits.totalPages > 1}">
         <a th:if="${!medicalUnits.first}"
            th:href="@{/medical-units(name=${param.name}, location=${param.location}, page=${medicalUnits.number - 1})}">&laquo; Prev</a>

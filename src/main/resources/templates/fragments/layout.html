@@ -1,10 +1,21 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+<!--
+  Shared layout fragments: head, header (nav), footer, alerts, pagination.
+  Included from every page like:
 
+    <head th:replace="~{fragments/layout :: head(title='Medical Units')}"></head>
+    ...
+    <header th:replace="~{fragments/layout :: header}"></header>
+    ...
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+    ...
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+-->
 <head th:fragment="head(title)">
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title th:text="${title} + ' | Medical Platform'">Medical Platform</title>
+    <title th:text="${title} + ' | MediCare Platform'">MediCare Platform</title>
     <link rel="stylesheet" th:href="@{/css/style.css}"/>
 </head>
 <body>
@@ -16,6 +27,7 @@
             <a th:href="@{/medical-units}">Medical Units</a>
             <a th:href="@{/doctors}">Doctors</a>
             <a th:href="@{/patients}">Patients</a>
+            <a th:href="@{/appointments}">Appointments</a>
         </nav>
     </div>
 </header>
@@ -33,7 +45,7 @@
 
 <footer class="site-footer" th:fragment="footer">
     <div class="container">
-        <p>Medical Platform</p>
+        <p>MediCare Platform</p>
     </div>
 </footer>
 

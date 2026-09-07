@@ -36,6 +36,44 @@
         </div>
     </div>
 
+    <div class="page-header" style="margin-top:8px;">
+        <h2 class="section-title" style="border:none;margin:0;">Appointments</h2>
+        <a class="btn btn-primary btn-sm" th:href="@{/appointments/new(patientId=${patient.id})}">+ Book Appointment</a>
+    </div>
+
+    <!-- "appointments" model attribute: List<AppointmentResponseDto> for this patient (Feature 4) -->
+    <div class="table-wrapper">
+        <table>
+            <thead>
+            <tr>
+                <th>Date &amp; Time</th>
+                <th>Doctor</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="appt : ${appointments}">
+                <td th:text="${#temporals.format(appt.appointmentDateTime, 'dd MMM yyyy, HH:mm')}">01 Jan 2026, 10:00</td>
+                <td><a th:href="@{/doctors/{id}(id=${appt.doctorId})}" th:text="${appt.doctorFullName}">Doctor</a></td>
+                <td><span class="badge" th:text="${appt.status}">STATUS</span></td>
+                <td class="actions-cell">
+                    <a class="btn btn-secondary btn-sm" th:href="@{/appointments/{id}(id=${appt.id})}">View</a>
+                </td>
+            </tr>
+            <tr th:if="${appointments.isEmpty()}">
+                <td colspan="4" class="empty-state">No appointments yet.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!--
+      Features 6/7 (medical records, prescriptions) will hang more sections
+      off this page later, e.g. <h2 class="section-title">Medical Record</h2>
+      Left out for now since only features 1-5 were requested.
+    -->
+
 </main>
 
 <footer th:replace="~{fragments/layout :: footer}"></footer>

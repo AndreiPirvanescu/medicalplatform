@@ -15,6 +15,17 @@
     </div>
 
     <div class="card">
+        <!--
+          "medicalUnit" model attribute backs this form. Its request-side shape
+          (MedicalUnitRequestDto) wasn't shown to me, so this assumes the natural
+          mirror of MedicalUnitResponseDto minus computed fields:
+              name, email, phone, address, managerId
+          Adjust field names below to match your real DTO if it differs.
+
+          th:action switches between POST /medical-units (create) and
+          POST /medical-units/{id}/update (edit) - both handled in
+          MedicalUnitController alongside the JSON API.
+        -->
         <form th:action="${medicalUnit.id == null} ? @{/medical-units} : @{/medical-units/{id}/update(id=${medicalUnit.id})}"
               th:object="${medicalUnit}" method="post">
 
@@ -49,6 +60,7 @@
 
                 <div class="form-group">
                     <label for="managerId">Manager</label>
+                    <!-- "managers" model attribute: list of candidate manager users, each with id + fullName -->
                     <select id="managerId" th:field="*{managerId}">
                         <option value="">-- Unassigned --</option>
                         <option th:each="m : ${managers}" th:value="${m.id}" th:text="${m.fullName}">Manager name</option>

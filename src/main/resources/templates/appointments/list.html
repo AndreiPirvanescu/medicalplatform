@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title='Appointments')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="container">
+
+    <div class="page-header">
+        <div>
+            <h1>Appointments</h1>
+            <p class="subtitle">All appointments across the platform.</p>
+        </div>
+        <a class="btn btn-primary" th:href="@{/appointments/new}">+ Book Appointment</a>
+    </div>
+
+    <!-- Filter bar backed by GET /appointments?patientId=&doctorId=&status=&from=&to=&page= -->
+    <div class="filter-bar">
+        <form th:action="@{/appointments}" method="get">
+            <div class="field">
+                <label for="patientId">Patient</label>
+                <select id="patientId" name="patientId">
+                    <option value="">Any</option>
+                    <option th:each="p : ${allPatients}" th:value="${p.id}"
+                            th:text="${p.firstName + ' ' + p.lastName}"
+                            th:selected="${param.patientId != null and param.patientId[0] == p.id.toString()}">Patient</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="doctorId">Doctor</label>
+                <select id="doctorId" name="doctorId">
+                    <option value="">Any</option>
+                    <option th:each="d : ${allDoctors}" th:value="${d.id}" th:text="${d.doctorFullName}"
+                            th:selected="${param.doctorId != null and param.doctorId[0] == d.id.toString()}">Doctor</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="status">Status</label>
+                <select id="status" name="status">
+                    <option value="">Any</option>
+                    <option th:each="s : ${allStatuses}" th:value="${s}" th:text="${s}"
+                            th:selected="${param.status != null and param.status[0] == s.toString()}">STATUS</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="from">From</label>
+                <input type="datetime-local" id="from" name="from" th:value="${param.from}"/>
+            </div>
+            <div class="field">
+                <label for="to">To</label>
+                <input type="datetime-local" id="to" name="to" th:value="${param.to}"/>
+            </div>
+            <div class="field">
+                <button type="submit" class="btn btn-secondary">Filter</button>
+            </div>
+            <div class="field">
+                <a th:href="@{/appointments}" class="btn btn-secondary">Clear</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+            <tr>
+                <th>Date &amp; Time</th>
+                <th>Patient</th>
+                <th>Doctor</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="appt : ${appointments.content}">
+                <td th:text="${#temporals.format(appt.appointmentDateTime, 'dd MMM yyyy, HH:mm')}">01 Jan 2026, 10:00</td>
+                <td><a th:href="@{/patients/{id}(id=${appt.patientId})}" th:text="${appt.patientFullName}">Patient</a></td>
+                <td><a th:href="@{/doctors/{id}(id=${appt.doctorId})}" th:text="${appt.doctorFullName}">Doctor</a></td>
+                <td th:switch="${appt.status.name()}">
+                    <span class="badge badge-danger" th:case="'CANCELLED'" th:text="${appt.status}">STATUS</span>
+                    <span class="badge badge-success" th:case="'DONE'" th:text="${appt.status}">STATUS</span>
+                    <span class="badge" th:case="*" th:text="${appt.status}">STATUS</span>
+                </td>
+                <td class="actions-cell">
+                    <div class="btn-group">
+                        <a class="btn btn-secondary btn-sm" th:href="@{/appointments/{id}(id=${appt.id})}">View</a>
+                        <a class="btn btn-secondary btn-sm" th:href="@{/appointments/{id}/edit(id=${appt.id})}">Edit</a>
+                        <form th:action="@{/appointments/{id}/delete(id=${appt.id})}" method="post"
+                              onsubmit="return confirm('Cancel this appointment?');">
+                            <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${appointments.content.isEmpty()}">
+                <td colspan="5" class="empty-state">No appointments match your filters.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <nav class="pagination" th:if="${appointments.totalPages > 1}">
+        <a th:if="${!appointments.first}" th:href="@{/appointments(page=${appointments.number - 1})}">&laquo; Prev</a>
+        <span th:each="i : ${#numbers.sequence(0, appointments.totalPages - 1)}">
+            <span th:if="${i == appointments.number}" class="current" th:text="${i + 1}">1</span>
+            <a th:unless="${i == appointments.number}" th:href="@{/appointments(page=${i})}" th:text="${i + 1}">1</a>
+        </span>
+        <a th:if="${!appointments.last}" th:href="@{/appointments(page=${appointments.number + 1})}">Next &raquo;</a>
+    </nav>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
