@@ -1,8 +1,10 @@
 package com.andrei.project.medicalplatform.controller;
 
+import com.andrei.project.medicalplatform.dto.medication.MedicationResponseDto;
 import com.andrei.project.medicalplatform.dto.prescription.PrescriptionRequestDto;
 import com.andrei.project.medicalplatform.dto.prescription.PrescriptionResponseDto;
 import com.andrei.project.medicalplatform.dto.prescription.PrescriptionUpdateDto;
+import com.andrei.project.medicalplatform.service.MedicationService;
 import com.andrei.project.medicalplatform.service.PrescriptionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ import java.util.List;
 public class PrescriptionController {
 
     private final PrescriptionService prescriptionService;
+    private final MedicationService medicationService;
 
     @PostMapping("/for-patient/{patientId}/by-doctor/{doctorId}")
     public ResponseEntity<PrescriptionResponseDto> create(
@@ -64,5 +67,21 @@ public class PrescriptionController {
     @GetMapping("/by-patient/{patientId}")
     public ResponseEntity<List<PrescriptionResponseDto>> getByPatient(@PathVariable Long patientId) {
         return ResponseEntity.ok(prescriptionService.getByPatient(patientId));
+    }
+
+    @PostMapping("/{id}/medications/{medicationId}")
+    public ResponseEntity<MedicationResponseDto> addMedication(
+            @PathVariable Long id,
+            @PathVariable Long medicationId) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(medicationService.addToPrescription(id, medicationId));
+    }
+
+    @DeleteMapping("/{id}/medications/{medicationId}")
+    public ResponseEntity<Void> removeMedication(
+            @PathVariable Long id,
+            @PathVariable Long medicationId) {
+        medicationService.removeFromPrescription(id, medicationId);
+        return ResponseEntity.noContent().build();
     }
 }

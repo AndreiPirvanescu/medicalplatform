@@ -118,4 +118,20 @@ public class GlobalExceptionHandler {
         return problem;
     }
 
+    @ExceptionHandler(MedicationAlreadyInPrescriptionException.class)
+    public ProblemDetail handleMedicationAlreadyInPrescriptionException(MedicationAlreadyInPrescriptionException e) {
+        var problem = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        problem.setTitle("Medication already in prescription.");
+        problem.setDetail(e.getMessage());
+        return problem;
+    }
+
+    @ExceptionHandler(MedicationNotInPrescriptionException.class)
+    public ProblemDetail handleMedicationNotInPrescriptionException(MedicationNotInPrescriptionException e) {
+        var problem = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        problem.setTitle("Medication not in prescription.");
+        problem.setDetail(e.getMessage());
+        return problem;
+    }
+
 }
