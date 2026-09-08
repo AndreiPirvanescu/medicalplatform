@@ -136,19 +136,11 @@ public class DoctorController {
 
     @PostMapping("/doctors/{id}/delete")
     public String deleteFromForm(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        try {
-            doctorService.delete(id);
-            redirectAttributes.addFlashAttribute("successMessage", "Doctor removed.");
-            return "redirect:/doctors";
-        } catch (RuntimeException ex) {
-            redirectAttributes.addFlashAttribute("errorMessage",
-                    "Could not remove doctor: " + ex.getMessage()
-                            + ". They likely still have appointments, prescriptions or records linked to them - remove those first.");
-            return "redirect:/doctors/" + id;
-        }
+        doctorService.delete(id);
+        redirectAttributes.addFlashAttribute("successMessage", "Doctor removed.");
+        return "redirect:/doctors";
     }
 
-    // POST /doctors/{id}/specializations  (view-form equivalent of POST /api/doctors/{id}/specializations/{specId})
     @PostMapping("/doctors/{id}/specializations")
     public String addSpecializationFromForm(@PathVariable Long id,
                                              @RequestParam("specializationId") Specialization specializationId,

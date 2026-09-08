@@ -5,15 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
-/**
- * ASSUMPTION: only MedicalUnitResponseDto was shared with me, not the
- * request-side DTO. This mirrors MedicalUnitResponseDto minus its computed
- * fields (managerFullName, doctorCount), on the assumption managerId is
- * optional (a unit can exist before a manager is assigned).
- *
- * If you already have a MedicalUnitRequestDto, delete this file and adjust
- * MedicalUnitViewController + medical-units/form.html field names to match.
- */
 public record MedicalUnitRequestDto(
         @NotBlank(message = "Name is required")
         @Size(max = 150, message = "Name must not exceed 150 characters")

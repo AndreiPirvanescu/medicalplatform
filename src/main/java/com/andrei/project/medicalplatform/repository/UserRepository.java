@@ -7,26 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-/**
- * You almost certainly already have a UserRepository (User rows are
- * referenced by id everywhere - managerId, userId on Doctor/Patient), so
- * this file is only a scaffold: if yours already exists, just add
- * findByRoleNameIgnoreCase to it instead of using this file, and delete
- * this one.
- *
- * findByRoleNameIgnoreCase traverses User's @ManyToMany "roles" collection
- * and matches on Role.name - given your Role entity (id, name,
- * @ManyToMany(mappedBy = "roles") Set<User> users), this assumes User has
- * the other side of that relationship as a field literally named "roles"
- * (a Set<Role> or List<Role>). If that field is named something else on
- * User, change ".roles" in the JPQL below to match (e.g. ".userRoles").
- *
- * This is deliberately case-insensitive and tolerant of a "ROLE_" prefix
- * (matches "DOCTOR", "doctor" or "ROLE_DOCTOR" alike). Not currently called
- * by UserService any more (Manager/Doctor/Patient eligibility is now all
- * "has no role", via findUsersWithNoRoles below) - left here in case you
- * want role-based lookups for something else later.
- */
+
 public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findByRoles_Name(String roleName);
@@ -35,12 +16,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "WHERE UPPER(r.name) = UPPER(:roleName) OR UPPER(r.name) = UPPER(CONCAT('ROLE_', :roleName))")
     List<User> findByRoleNameIgnoreCase(@Param("roleName") String roleName);
 
-    /**
-     * Users holding no role at all - the pool of "free" accounts eligible to
-     * become a medical unit's manager, a doctor, or a patient (UserService
-     * uses this same query for all three). Also assumes the "roles" field
-     * name discussed above; "IS EMPTY" is JPQL for an empty collection.
-     */
     @Query("SELECT u FROM User u WHERE u.roles IS EMPTY")
     List<User> findUsersWithNoRoles();
 }
