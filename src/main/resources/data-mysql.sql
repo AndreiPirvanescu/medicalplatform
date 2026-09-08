@@ -34,7 +34,9 @@ INSERT INTO users (id, email, password, first_name, last_name, phone, account_no
                                                                                                                                                      (12, 'brian.manager@medplatform.com','$2a$10$abcdefghijklmnopqrstuv','Brian',     'Nash',      '0723000012', true, true, true, true),
                                                                                                                                                      (13, 'susan.manager@medplatform.com','$2a$10$abcdefghijklmnopqrstuv','Susan',     'Reed',      '0723000013', true, true, true, true),
                                                                                                                                                      (14, 'victor.manager@medplatform.com','$2a$10$abcdefghijklmnopqrstuv','Victor',   'Price',     '0723000014', true, true, true, true),
-                                                                                                                                                     (15, 'laura.manager@medplatform.com','$2a$10$abcdefghijklmnopqrstuv','Laura',     'Dobson',    '0723000015', true, true, true, true);
+                                                                                                                                                     (15, 'laura.manager@medplatform.com','$2a$10$abcdefghijklmnopqrstuv','Laura',     'Dobson',    '0723000015', true, true, true, true),
+                                                                                                                                                     (16, 'levin.manager@medplatform.com','$2a$10$abcdefghijklmnopqrstuv','Levin',     'Johnson',    '0723000016', true, true, true, true),
+                                                                                                                                                     (17, 'dora.manager@medplatform.com','$2a$10$abcdefghijklmnopqrstuv','Dora',     'Smith',    '0723000017', true, true, true, true);
 
 -- ---------------------------
 -- user_roles

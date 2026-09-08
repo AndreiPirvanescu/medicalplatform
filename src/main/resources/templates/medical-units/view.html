@@ -48,7 +48,8 @@
 
     <div class="page-header" style="margin-top: 8px;">
         <h2 class="section-title" style="border:none;margin:0;">Doctors at this unit</h2>
-        <a class="btn btn-primary btn-sm" th:href="@{/medical-units/{id}/doctors/new(id=${medicalUnit.id})}">+ Add Doctor</a>
+        <!-- Adding a doctor now happens on the Doctors page (/doctors/new) - this just preselects this unit there. -->
+        <a class="btn btn-primary btn-sm" th:href="@{/doctors/new(medicalUnitId=${medicalUnit.id})}">+ Add Doctor</a>
     </div>
 
     <!-- "doctors" model attribute: List<DoctorResponseDto> for this unit -->

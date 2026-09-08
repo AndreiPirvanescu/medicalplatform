@@ -22,24 +22,33 @@
             <div class="form-grid">
                 <div class="form-group">
                     <label for="userId">User <span class="required">*</span></label>
-                    <!-- "eligibleUsers" model attribute is a UserRoleOptions (UserService.findEligiblePatientUsers()): .users is the id/fullName/email list, .usedFallback is true when no user actually has role PATIENT and we're showing everyone instead -->
-                    <div th:if="${eligibleUsers.usedFallback}" class="alert alert-warning" style="margin-bottom:10px;">
-                        No users are tagged with role <strong>PATIENT</strong> yet, so every user is listed below.
-                        Assign that role to the right user to narrow this down.
-                    </div>
-                    <select id="userId" th:field="*{userId}"
-                            th:classappend="${#fields.hasErrors('userId')} ? 'is-invalid'">
-                        <option value="">-- Select a user --</option>
-                        <option th:each="u : ${eligibleUsers.users}" th:value="${u.id}"
-                                th:text="${u.fullName} + ' (' + ${u.email} + ')'">User</option>
-                    </select>
-                    <div class="field-error" th:if="${#fields.hasErrors('userId')}" th:errors="*{userId}"></div>
-                    <!-- "currentUser" model attribute: full UserResponseDto, present only when editing an existing patient -->
-                    <div th:if="${currentUser != null}" class="text-muted" style="margin-top:6px; font-size:0.85rem;">
-                        Linked account: <strong th:text="${currentUser.fullName}">Name</strong>
-                        &middot; <span th:text="${currentUser.email}">email</span>
-                        &middot; <span th:text="${currentUser.phone}">phone</span>
-                    </div>
+
+                    <!-- Create: pick from "eligibleUsers" (UserService.findEligiblePatientUsers() - users with no role assigned yet). -->
+                    <th:block th:if="${patient.id == null}">
+                        <select id="userId" th:field="*{userId}"
+                                th:classappend="${#fields.hasErrors('userId')} ? 'is-invalid'">
+                            <option value="">-- Select a user --</option>
+                            <option th:each="u : ${eligibleUsers}" th:value="${u.id}"
+                                    th:text="${u.fullName} + ' (' + ${u.email} + ')'">User</option>
+                        </select>
+                        <div class="field-error" th:if="${#fields.hasErrors('userId')}" th:errors="*{userId}"></div>
+                        <div th:if="${#lists.isEmpty(eligibleUsers)}" class="text-muted" style="margin-top:6px; font-size:0.85rem;">
+                            No users without a role are available right now - free one up, or create a new user account, to register a patient.
+                        </div>
+                    </th:block>
+
+                    <!-- Edit: the linked user account can't be changed - shown read-only, userId still travels via a hidden field (and is re-pinned server-side in PatientController regardless). -->
+                    <th:block th:if="${patient.id != null}">
+                        <input type="hidden" th:field="*{userId}"/>
+                        <div class="readonly-box" th:if="${currentUser != null}">
+                            <strong th:text="${currentUser.fullName}">Name</strong>
+                            &middot; <span th:text="${currentUser.email}">email</span>
+                            &middot; <span th:text="${currentUser.phone}">phone</span>
+                        </div>
+                        <div class="text-muted" style="margin-top:6px; font-size:0.85rem;">
+                            The linked user account can't be changed after the patient profile is created.
+                        </div>
+                    </th:block>
                 </div>
 
                 <div class="form-group">

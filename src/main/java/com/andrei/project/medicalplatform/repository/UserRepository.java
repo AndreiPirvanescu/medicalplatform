@@ -22,13 +22,10 @@ import java.util.List;
  * User, change ".roles" in the JPQL below to match (e.g. ".userRoles").
  *
  * This is deliberately case-insensitive and tolerant of a "ROLE_" prefix
- * (matches "DOCTOR", "doctor" or "ROLE_DOCTOR" alike), because the plain
- * exact-match findByRoles_Name(String) derived query was the reason every
- * "select a user" dropdown came back empty in practice - the query itself
- * worked, it just never found a row whose Role.name matched the literal
- * constant string exactly. If your role names really are stored some other
- * way entirely, tell me the actual values and I'll drop this in favor of an
- * exact match again.
+ * (matches "DOCTOR", "doctor" or "ROLE_DOCTOR" alike). Not currently called
+ * by UserService any more (Manager/Doctor/Patient eligibility is now all
+ * "has no role", via findUsersWithNoRoles below) - left here in case you
+ * want role-based lookups for something else later.
  */
 public interface UserRepository extends JpaRepository<User, Long> {
 
@@ -37,4 +34,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT DISTINCT u FROM User u JOIN u.roles r " +
             "WHERE UPPER(r.name) = UPPER(:roleName) OR UPPER(r.name) = UPPER(CONCAT('ROLE_', :roleName))")
     List<User> findByRoleNameIgnoreCase(@Param("roleName") String roleName);
+
+    /**
+     * Users holding no role at all - the pool of "free" accounts eligible to
+     * become a medical unit's manager, a doctor, or a patient (UserService
+     * uses this same query for all three). Also assumes the "roles" field
+     * name discussed above; "IS EMPTY" is JPQL for an empty collection.
+     */
+    @Query("SELECT u FROM User u WHERE u.roles IS EMPTY")
+    List<User> findUsersWithNoRoles();
 }

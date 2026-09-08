@@ -1,6 +1,6 @@
 package com.andrei.project.medicalplatform.controller;
 
-import com.andrei.project.medicalplatform.dto.common.UserRoleOptions;
+import com.andrei.project.medicalplatform.dto.common.UserOptionDto;
 import com.andrei.project.medicalplatform.dto.doctor.DoctorRequestDto;
 import com.andrei.project.medicalplatform.dto.doctor.DoctorResponseDto;
 import com.andrei.project.medicalplatform.dto.medicalunit.MedicalUnitResponseDto;
@@ -42,10 +42,11 @@ import java.util.List;
  * be removed and each path made absolute instead - request-for-request the
  * API is identical to what you had).
  *
- * TODO: I don't have your MedicalUnitService.findManagers()-equivalent for
- * users, so "eligibleUsers" below is a placeholder - point it at however you
- * fetch users that can become a doctor (e.g. users with role DOCTOR not yet
- * linked to a Doctor row).
+ * "eligibleUsers" (UserService.findEligibleDoctorUsers() - users with NO
+ * role at all) only feeds the CREATE form's dropdown. On EDIT, the linked
+ * user account can't be changed any more - the form shows it read-only via
+ * "currentUser" and pins userId server-side in updateFromForm, so it never
+ * gets reassigned.
  */
 @Controller
 @RequiredArgsConstructor
@@ -164,39 +165,36 @@ public class DoctorController {
         return "doctors/view";
     }
 
-    // GET /medical-units/{unitId}/doctors/new
-    @GetMapping("/medical-units/{unitId}/doctors/new")
-    public String newForm(@PathVariable Long unitId, Model model) {
-        MedicalUnitResponseDto unit = medicalUnitService.getById(unitId);
-
+    // GET /doctors/new?medicalUnitId=  (medicalUnitId optional - lets this be
+    // reached bare from the Doctors page, or preselected from a unit's page)
+    @GetMapping("/doctors/new")
+    public String newForm(@RequestParam(required = false) Long medicalUnitId, Model model) {
         DoctorFormDto form = new DoctorFormDto();
-        form.setMedicalUnitId(unitId);
+        form.setMedicalUnitId(medicalUnitId);
 
-        model.addAttribute("medicalUnit", unit);
         model.addAttribute("doctor", form);
         model.addAttribute("eligibleUsers", loadEligibleUserOptions());
         return "doctors/form";
     }
 
-    // POST /medical-units/{unitId}/doctors  -> calls the same doctorService.create
-    // that the JSON API's MedicalUnitController.addDoctor uses.
-    @PostMapping("/medical-units/{unitId}/doctors")
-    public String create(@PathVariable Long unitId,
-                          @Valid @ModelAttribute("doctor") DoctorFormDto form,
+    // POST /doctors  (view-form equivalent of POST /api/medicalUnits/{id}/doctors,
+    // except the unit is now picked on the form itself instead of coming from
+    // the URL - calls the same doctorService.create the JSON API uses)
+    @PostMapping("/doctors")
+    public String create(@Valid @ModelAttribute("doctor") DoctorFormDto form,
                           BindingResult result,
                           Model model,
                           RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
-            model.addAttribute("medicalUnit", medicalUnitService.getById(unitId));
             model.addAttribute("eligibleUsers", loadEligibleUserOptions());
             return "doctors/form";
         }
 
         DoctorRequestDto dto = new DoctorRequestDto(form.getUserId(), form.getLicenseNumber(), form.getSpecializations());
-        doctorService.create(unitId, dto);
+        DoctorResponseDto created = doctorService.create(form.getMedicalUnitId(), dto);
 
         redirectAttributes.addFlashAttribute("successMessage", "Doctor added.");
-        return "redirect:/medical-units/" + unitId;
+        return "redirect:/doctors/" + created.id();
     }
 
     // GET /doctors/{id}/edit
@@ -206,13 +204,16 @@ public class DoctorController {
 
         DoctorFormDto form = new DoctorFormDto();
         form.setId(existing.id());
+        form.setMedicalUnitId(existing.medicalUnitId()); // not reassignable - see doctors/form.html; only kept so the required-field validation doesn't trip on edit
         form.setUserId(existing.userId());
         form.setLicenseNumber(existing.licenseNumber());
         form.setSpecializations(existing.specializations());
 
         model.addAttribute("medicalUnit", medicalUnitService.getById(existing.medicalUnitId()));
         model.addAttribute("doctor", form);
-        model.addAttribute("eligibleUsers", loadEligibleUserOptions());
+        // No "eligibleUsers" here on purpose - the linked user account can't be
+        // changed once a doctor profile exists, so the edit form only shows
+        // "currentUser" read-only (see doctors/form.html).
         model.addAttribute("currentUser", userService.getById(existing.userId()));
         return "doctors/form";
     }
@@ -224,16 +225,20 @@ public class DoctorController {
                                   BindingResult result,
                                   Model model,
                                   RedirectAttributes redirectAttributes) {
+        // The linked user account is not editable from this form (its field is
+        // a disabled/hidden input) - pin it to the existing value server-side
+        // too, so the doctor profile can never be reassigned to a different
+        // user even if the hidden field were tampered with.
+        Long existingUserId = doctorService.getById(id).userId();
+        form.setUserId(existingUserId);
+
         if (result.hasErrors()) {
             form.setId(id);
-            model.addAttribute("eligibleUsers", loadEligibleUserOptions());
-            if (form.getUserId() != null) {
-                model.addAttribute("currentUser", userService.getById(form.getUserId()));
-            }
+            model.addAttribute("currentUser", userService.getById(existingUserId));
             return "doctors/form";
         }
 
-        DoctorRequestDto dto = new DoctorRequestDto(form.getUserId(), form.getLicenseNumber(), form.getSpecializations());
+        DoctorRequestDto dto = new DoctorRequestDto(existingUserId, form.getLicenseNumber(), form.getSpecializations());
         doctorService.update(id, dto);
 
         redirectAttributes.addFlashAttribute("successMessage", "Doctor updated.");
@@ -243,9 +248,23 @@ public class DoctorController {
     // POST /doctors/{id}/delete  (view-form equivalent of DELETE /api/doctors/{id})
     @PostMapping("/doctors/{id}/delete")
     public String deleteFromForm(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        doctorService.delete(id);
-        redirectAttributes.addFlashAttribute("successMessage", "Doctor removed.");
-        return "redirect:/doctors";
+        try {
+            doctorService.delete(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Doctor removed.");
+            return "redirect:/doctors";
+        } catch (RuntimeException ex) {
+            // This is why "delete" could look like it does nothing: doctorService.delete
+            // is a plain doctorRepository.delete(...) with no guard, so if this doctor
+            // still has appointments/prescriptions/medical records pointing at them (and
+            // there's no cascade delete configured), the database rejects it with a
+            // DataIntegrityViolationException that was going unhandled - Spring showed
+            // its default error page instead of returning to the list, and the doctor
+            // was never actually removed. Surface the real reason instead.
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Could not remove doctor: " + ex.getMessage()
+                            + ". They likely still have appointments, prescriptions or records linked to them - remove those first.");
+            return "redirect:/doctors/" + id;
+        }
     }
 
     // POST /doctors/{id}/specializations  (view-form equivalent of POST /api/doctors/{id}/specializations/{specId})
@@ -268,7 +287,7 @@ public class DoctorController {
         return "redirect:/doctors/" + id;
     }
 
-    private UserRoleOptions loadEligibleUserOptions() {
+    private List<UserOptionDto> loadEligibleUserOptions() {
         return userService.findEligibleDoctorUsers();
     }
 }

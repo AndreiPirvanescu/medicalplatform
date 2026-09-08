@@ -1,6 +1,5 @@
 package com.andrei.project.medicalplatform.controller;
 
-import com.andrei.project.medicalplatform.dto.common.UserRoleOptions;
 import com.andrei.project.medicalplatform.dto.doctor.DoctorRequestDto;
 import com.andrei.project.medicalplatform.dto.doctor.DoctorResponseDto;
 import com.andrei.project.medicalplatform.dto.medicalunit.MedicalUnitRequestDto;
@@ -36,8 +35,10 @@ import java.util.List;
  * address, managerId) - if your real one differs, adjust MedicalUnitFormDto
  * and the two spots below that build a MedicalUnitRequestDto from the form.
  *
- * TODO: "managers" (for the manager dropdown) is a placeholder - point it at
- * your real "users eligible to manage a unit" query.
+ * "managers" (for the manager dropdown, on both create and edit) is
+ * UserService.findManagerCandidates(...) - users holding no role at all,
+ * plus the unit's current manager if it already has one (so re-saving the
+ * form without touching the dropdown can't accidentally unassign them).
  */
 @Controller
 @RequiredArgsConstructor
@@ -137,7 +138,7 @@ public class MedicalUnitController {
     @GetMapping("/medical-units/new")
     public String newForm(Model model) {
         model.addAttribute("medicalUnit", new MedicalUnitFormDto());
-        model.addAttribute("managers", loadManagerOptions());
+        model.addAttribute("managers", userService.findManagerCandidates(null));
         return "medical-units/form";
     }
 
@@ -148,7 +149,7 @@ public class MedicalUnitController {
                                   Model model,
                                   RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
-            model.addAttribute("managers", loadManagerOptions());
+            model.addAttribute("managers", userService.findManagerCandidates(form.getManagerId()));
             return "medical-units/form";
         }
 
@@ -174,7 +175,7 @@ public class MedicalUnitController {
         form.setManagerId(existing.managerId());
 
         model.addAttribute("medicalUnit", form);
-        model.addAttribute("managers", loadManagerOptions());
+        model.addAttribute("managers", userService.findManagerCandidates(existing.managerId()));
         if (existing.managerId() != null) {
             model.addAttribute("currentManager", userService.getById(existing.managerId()));
         }
@@ -190,7 +191,7 @@ public class MedicalUnitController {
                                   RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             form.setId(id);
-            model.addAttribute("managers", loadManagerOptions());
+            model.addAttribute("managers", userService.findManagerCandidates(form.getManagerId()));
             if (form.getManagerId() != null) {
                 model.addAttribute("currentManager", userService.getById(form.getManagerId()));
             }
@@ -208,12 +209,19 @@ public class MedicalUnitController {
     // POST /medical-units/{id}/delete  (view-form equivalent of DELETE /api/medicalUnits/{id})
     @PostMapping("/medical-units/{id}/delete")
     public String deleteFromForm(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        medicalUnitService.delete(id);
-        redirectAttributes.addFlashAttribute("successMessage", "Medical unit deleted.");
-        return "redirect:/medical-units";
+        try {
+            medicalUnitService.delete(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Medical unit deleted.");
+            return "redirect:/medical-units";
+        } catch (RuntimeException ex) {
+            // Same underlying issue as DoctorController.deleteFromForm - a unit
+            // that still has doctors assigned to it fails the delete at the
+            // database level with no cascade configured.
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Could not delete medical unit: " + ex.getMessage()
+                            + ". It likely still has doctors assigned to it - reassign or remove those first.");
+            return "redirect:/medical-units/" + id;
+        }
     }
 
-    private UserRoleOptions loadManagerOptions() {
-        return userService.findManagers();
-    }
 }

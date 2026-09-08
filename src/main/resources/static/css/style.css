@@ -305,6 +305,16 @@ td.actions-cell { white-space: nowrap; text-align: right; }
 .alert-error { background: var(--color-danger-light); color: var(--color-danger); border: 1px solid #fecaca; }
 .alert-warning { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
 
+/* ---------- Read-only field display (e.g. a linked user account that can't be reassigned) ---------- */
+
+.readonly-box {
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: var(--color-surface-muted, #f3f4f6);
+  border: 1px solid var(--color-border);
+  font-size: 0.9rem;
+}
+
 /* ---------- Pagination ---------- */
 
 .pagination {

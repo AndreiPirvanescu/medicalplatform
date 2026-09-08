@@ -60,16 +60,15 @@
 
                 <div class="form-group">
                     <label for="managerId">Manager</label>
-                    <!-- "managers" model attribute is a UserRoleOptions (UserService.findManagers()): .users is the id/fullName/email list, .usedFallback is true when no user actually has role MANAGER and we're showing everyone instead -->
-                    <div th:if="${managers.usedFallback}" class="alert alert-warning" style="margin-bottom:10px;">
-                        No users are tagged with role <strong>MANAGER</strong> yet, so every user is listed below.
-                        Assign that role to the right user to narrow this down.
-                    </div>
+                    <!-- "managers" model attribute: UserService.findManagerCandidates(currentManagerId) - users with no role assigned yet, plus the unit's current manager (if any) so this select always has them as an option -->
                     <select id="managerId" th:field="*{managerId}">
                         <option value="">-- Unassigned --</option>
-                        <option th:each="m : ${managers.users}" th:value="${m.id}"
+                        <option th:each="m : ${managers}" th:value="${m.id}"
                                 th:text="${m.fullName} + ' (' + ${m.email} + ')'">Manager name</option>
                     </select>
+                    <div th:if="${#lists.isEmpty(managers)}" class="text-muted" style="margin-top:6px; font-size:0.85rem;">
+                        No users without a role are available right now - free one up, or create a new user account, to assign a manager.
+                    </div>
                     <!-- "currentManager" model attribute: full UserResponseDto, present only when editing a unit that already has a manager -->
                     <div th:if="${currentManager != null}" class="text-muted" style="margin-top:6px; font-size:0.85rem;">
                         Currently assigned: <strong th:text="${currentManager.fullName}">Name</strong>

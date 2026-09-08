@@ -20,43 +20,63 @@
 
     <div class="card">
         <!--
-          "doctor" model attribute is a DoctorRequestDto: userId, licenseNumber,
-          specializations (List<Specialization>).
+          "doctor" model attribute is a DoctorFormDto: medicalUnitId, userId,
+          licenseNumber, specializations (List<Specialization>).
 
-          Create: GET  /medical-units/{unitId}/doctors/new  -> submits to
-                  POST /medical-units/{unitId}/doctors (DoctorController, calls
-                  the same doctorService.create used by the JSON API's
-                  POST /api/medicalUnits/{id}/doctors)
+          Create: GET  /doctors/new(?medicalUnitId=)  -> submits to
+                  POST /doctors (DoctorController, calls the same
+                  doctorService.create used by the JSON API's
+                  POST /api/medicalUnits/{id}/doctors, unit now picked on the
+                  form itself instead of coming from the URL)
           Edit:   GET  /doctors/{id}/edit -> submits to
                   POST /doctors/{id}/update (DoctorController, calls the same
                   doctorService.update used by PUT /api/doctors/{id})
         -->
-        <form th:action="${doctor.id == null}
-                            ? @{/medical-units/{unitId}/doctors(unitId=${medicalUnit.id})}
-                            : @{/doctors/{id}/update(id=${doctor.id})}"
+        <form th:action="${doctor.id == null} ? @{/doctors} : @{/doctors/{id}/update(id=${doctor.id})}"
               th:object="${doctor}" method="post">
 
             <div class="form-grid">
+                <!-- Create: which medical unit this doctor belongs to - not changeable afterwards. -->
+                <div class="form-group" th:if="${doctor.id == null}">
+                    <label for="medicalUnitId">Medical Unit <span class="required">*</span></label>
+                    <select id="medicalUnitId" th:field="*{medicalUnitId}"
+                            th:classappend="${#fields.hasErrors('medicalUnitId')} ? 'is-invalid'">
+                        <option value="">-- Select a medical unit --</option>
+                        <option th:each="unit : ${allMedicalUnits}" th:value="${unit.id}" th:text="${unit.name}">Unit</option>
+                    </select>
+                    <div class="field-error" th:if="${#fields.hasErrors('medicalUnitId')}" th:errors="*{medicalUnitId}"></div>
+                </div>
+                <input type="hidden" th:if="${doctor.id != null}" th:field="*{medicalUnitId}"/>
+
                 <div class="form-group">
                     <label for="userId">User <span class="required">*</span></label>
-                    <!-- "eligibleUsers" model attribute is a UserRoleOptions (UserService.findEligibleDoctorUsers()): .users is the id/fullName/email list, .usedFallback is true when no user actually has role DOCTOR and we're showing everyone instead -->
-                    <div th:if="${eligibleUsers.usedFallback}" class="alert alert-warning" style="margin-bottom:10px;">
-                        No users are tagged with role <strong>DOCTOR</strong> yet, so every user is listed below.
-                        Assign that role to the right user to narrow this down.
-                    </div>
-                    <select id="userId" th:field="*{userId}"
-                            th:classappend="${#fields.hasErrors('userId')} ? 'is-invalid'">
-                        <option value="">-- Select a user --</option>
-                        <option th:each="u : ${eligibleUsers.users}" th:value="${u.id}"
-                                th:text="${u.fullName} + ' (' + ${u.email} + ')'">User</option>
-                    </select>
-                    <div class="field-error" th:if="${#fields.hasErrors('userId')}" th:errors="*{userId}"></div>
-                    <!-- "currentUser" model attribute: full UserResponseDto, present only when editing an existing doctor -->
-                    <div th:if="${currentUser != null}" class="text-muted" style="margin-top:6px; font-size:0.85rem;">
-                        Linked account: <strong th:text="${currentUser.fullName}">Name</strong>
-                        &middot; <span th:text="${currentUser.email}">email</span>
-                        &middot; <span th:text="${currentUser.phone}">phone</span>
-                    </div>
+
+                    <!-- Create: pick from "eligibleUsers" (UserService.findEligibleDoctorUsers() - users with no role assigned yet). -->
+                    <th:block th:if="${doctor.id == null}">
+                        <select id="userId" th:field="*{userId}"
+                                th:classappend="${#fields.hasErrors('userId')} ? 'is-invalid'">
+                            <option value="">-- Select a user --</option>
+                            <option th:each="u : ${eligibleUsers}" th:value="${u.id}"
+                                    th:text="${u.fullName} + ' (' + ${u.email} + ')'">User</option>
+                        </select>
+                        <div class="field-error" th:if="${#fields.hasErrors('userId')}" th:errors="*{userId}"></div>
+                        <div th:if="${#lists.isEmpty(eligibleUsers)}" class="text-muted" style="margin-top:6px; font-size:0.85rem;">
+                            No users without a role are available right now - free one up, or create a new user account, to register a doctor.
+                        </div>
+                    </th:block>
+
+                    <!-- Edit: the linked user account can't be changed - shown read-only, userId still travels via a hidden field (and is re-pinned server-side in DoctorController regardless). -->
+                    <th:block th:if="${doctor.id != null}">
+                        <input type="hidden" th:field="*{userId}"/>
+                        <div class="readonly-box" th:if="${currentUser != null}">
+                            <strong th:text="${currentUser.fullName}">Name</strong>
+                            &middot; <span th:text="${currentUser.email}">email</span>
+                            &middot; <span th:text="${currentUser.phone}">phone</span>
+                        </div>
+                        <div class="text-muted" style="margin-top:6px; font-size:0.85rem;">
+                            The linked user account can't be changed after the doctor profile is created.
+                        </div>
+                    </th:block>
                 </div>
 
                 <div class="form-group">

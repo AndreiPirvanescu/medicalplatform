@@ -1,6 +1,6 @@
 package com.andrei.project.medicalplatform.controller;
 
-import com.andrei.project.medicalplatform.dto.common.UserRoleOptions;
+import com.andrei.project.medicalplatform.dto.common.UserOptionDto;
 import com.andrei.project.medicalplatform.dto.patient.PatientRequestDto;
 import com.andrei.project.medicalplatform.dto.patient.PatientResponseDto;
 import com.andrei.project.medicalplatform.service.AppointmentService;
@@ -21,15 +21,19 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
+
 /**
  * Patient controller: your original JSON API (unchanged, at /api/patients,
  * now with explicit @ResponseBody + absolute paths since the class dropped
  * its @RestController class-level mapping) plus the Thymeleaf pages for
  * Feature 3 (Patient Management).
  *
- * TODO: "eligibleUsers" (for the userId dropdown on the register/edit form)
- * is a placeholder - point it at your real "users eligible to register as a
- * patient" query.
+ * "eligibleUsers" (UserService.findEligiblePatientUsers() - users with NO
+ * role at all) only feeds the CREATE (register) form's dropdown. On EDIT,
+ * the linked user account can't be changed any more - the form shows it
+ * read-only via "currentUser" and pins userId server-side in
+ * updateFromForm, so it never gets reassigned.
  */
 @Controller
 @RequiredArgsConstructor
@@ -144,7 +148,9 @@ public class PatientController {
         form.setBloodType(existing.bloodType());
 
         model.addAttribute("patient", form);
-        model.addAttribute("eligibleUsers", loadEligibleUserOptions());
+        // No "eligibleUsers" here on purpose - the linked user account can't be
+        // changed once a patient profile exists, so the edit form only shows
+        // "currentUser" read-only (see patients/form.html).
         model.addAttribute("currentUser", userService.getById(existing.userId()));
         return "patients/form";
     }
@@ -156,16 +162,20 @@ public class PatientController {
                                   BindingResult result,
                                   Model model,
                                   RedirectAttributes redirectAttributes) {
+        // The linked user account is not editable from this form (its field is
+        // a hidden input) - pin it to the existing value server-side too, so
+        // the patient profile can never be reassigned to a different user
+        // even if the hidden field were tampered with.
+        Long existingUserId = patientService.getById(id).userId();
+        form.setUserId(existingUserId);
+
         if (result.hasErrors()) {
             form.setId(id);
-            model.addAttribute("eligibleUsers", loadEligibleUserOptions());
-            if (form.getUserId() != null) {
-                model.addAttribute("currentUser", userService.getById(form.getUserId()));
-            }
+            model.addAttribute("currentUser", userService.getById(existingUserId));
             return "patients/form";
         }
 
-        PatientRequestDto dto = new PatientRequestDto(form.getUserId(), form.getDateOfBirth(), form.getBloodType());
+        PatientRequestDto dto = new PatientRequestDto(existingUserId, form.getDateOfBirth(), form.getBloodType());
         patientService.update(id, dto);
 
         redirectAttributes.addFlashAttribute("successMessage", "Patient updated.");
@@ -175,12 +185,22 @@ public class PatientController {
     // POST /patients/{id}/delete  (view-form equivalent of DELETE /api/patients/{id})
     @PostMapping("/patients/{id}/delete")
     public String deleteFromForm(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        patientService.delete(id);
-        redirectAttributes.addFlashAttribute("successMessage", "Patient deleted.");
-        return "redirect:/patients";
+        try {
+            patientService.delete(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Patient deleted.");
+            return "redirect:/patients";
+        } catch (RuntimeException ex) {
+            // Same underlying issue as DoctorController.deleteFromForm - a patient
+            // with appointments/prescriptions/records still pointing at them fails
+            // the delete at the database level with no cascade configured.
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Could not delete patient: " + ex.getMessage()
+                            + ". They likely still have appointments, prescriptions or records linked to them - remove those first.");
+            return "redirect:/patients/" + id;
+        }
     }
 
-    private UserRoleOptions loadEligibleUserOptions() {
+    private List<UserOptionDto> loadEligibleUserOptions() {
         return userService.findEligiblePatientUsers();
     }
 }

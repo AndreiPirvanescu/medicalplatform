@@ -17,6 +17,8 @@ import java.util.List;
 public class DoctorFormDto {
 
     private Long id;
+
+    @NotNull(message = "Medical unit is required")
     private Long medicalUnitId; // only used on create, to know which unit this doctor is added to
 
     @NotNull(message = "User is required")
