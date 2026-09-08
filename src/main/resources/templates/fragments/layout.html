@@ -1,17 +1,5 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<!--
-  Shared layout fragments: head, header (nav), footer, alerts, pagination.
-  Included from every page like:
-
-    <head th:replace="~{fragments/layout :: head(title='Medical Units')}"></head>
-    ...
-    <header th:replace="~{fragments/layout :: header}"></header>
-    ...
-    <div th:replace="~{fragments/layout :: alerts}"></div>
-    ...
-    <footer th:replace="~{fragments/layout :: footer}"></footer>
--->
 <head th:fragment="head(title)">
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -35,12 +23,6 @@
     </div>
 </header>
 
-<!--
-  Alerts fragment: expects optional model/flash attributes "successMessage"
-  and "errorMessage" (Strings). Set them with RedirectAttributes on
-  redirect-after-post, e.g.:
-     redirectAttributes.addFlashAttribute("successMessage", "Doctor added.");
--->
 <div class="container" th:fragment="alerts">
     <div class="alert alert-success" th:if="${successMessage}" th:text="${successMessage}"></div>
     <div class="alert alert-error" th:if="${errorMessage}" th:text="${errorMessage}"></div>

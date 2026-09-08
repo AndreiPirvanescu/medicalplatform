@@ -13,9 +13,6 @@
     </div>
 
     <div class="card">
-        <!--
-          "patient" model attribute is a PatientRequestDto: userId, dateOfBirth, bloodType.
-        -->
         <form th:action="${patient.id == null} ? @{/patients} : @{/patients/{id}/update(id=${patient.id})}"
               th:object="${patient}" method="post">
 
@@ -37,7 +34,6 @@
                         </div>
                     </th:block>
 
-                    <!-- Edit: the linked user account can't be changed - shown read-only, userId still travels via a hidden field (and is re-pinned server-side in PatientController regardless). -->
                     <th:block th:if="${patient.id != null}">
                         <input type="hidden" th:field="*{userId}"/>
                         <div class="readonly-box" th:if="${currentUser != null}">

@@ -15,7 +15,6 @@
         <a class="btn btn-primary" th:href="@{/prescriptions/new}">+ Issue Prescription</a>
     </div>
 
-    <!-- Filter bar backed by GET /prescriptions?patientId=&doctorId=&from=&to=&page= -->
     <div class="filter-bar">
         <form th:action="@{/prescriptions}" method="get">
             <div class="field">

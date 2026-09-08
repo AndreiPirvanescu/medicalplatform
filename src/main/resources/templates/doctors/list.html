@@ -15,10 +15,6 @@
         <a class="btn btn-primary" th:href="@{/doctors/new}">+ Add Doctor</a>
     </div>
 
-    <!--
-      Filter bar backed by GET /doctors?name=&specialization=&medicalUnitId=&available=
-      Maps to GET /api/doctors (filters) or GET /api/doctors/search (adds availability).
-    -->
     <div class="filter-bar">
         <form th:action="@{/doctors}" method="get">
             <div class="field">

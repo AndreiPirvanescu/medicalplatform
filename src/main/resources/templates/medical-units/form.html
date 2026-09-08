@@ -15,17 +15,6 @@
     </div>
 
     <div class="card">
-        <!--
-          "medicalUnit" model attribute backs this form. Its request-side shape
-          (MedicalUnitRequestDto) wasn't shown to me, so this assumes the natural
-          mirror of MedicalUnitResponseDto minus computed fields:
-              name, email, phone, address, managerId
-          Adjust field names below to match your real DTO if it differs.
-
-          th:action switches between POST /medical-units (create) and
-          POST /medical-units/{id}/update (edit) - both handled in
-          MedicalUnitController alongside the JSON API.
-        -->
         <form th:action="${medicalUnit.id == null} ? @{/medical-units} : @{/medical-units/{id}/update(id=${medicalUnit.id})}"
               th:object="${medicalUnit}" method="post">
 
@@ -60,7 +49,6 @@
 
                 <div class="form-group">
                     <label for="managerId">Manager</label>
-                    <!-- "managers" model attribute: UserService.findManagerCandidates(currentManagerId) - users with no role assigned yet, plus the unit's current manager (if any) so this select always has them as an option -->
                     <select id="managerId" th:field="*{managerId}">
                         <option value="">-- Unassigned --</option>
                         <option th:each="m : ${managers}" th:value="${m.id}"
@@ -69,7 +57,6 @@
                     <div th:if="${#lists.isEmpty(managers)}" class="text-muted" style="margin-top:6px; font-size:0.85rem;">
                         No users without a role are available right now - free one up, or create a new user account, to assign a manager.
                     </div>
-                    <!-- "currentManager" model attribute: full UserResponseDto, present only when editing a unit that already has a manager -->
                     <div th:if="${currentManager != null}" class="text-muted" style="margin-top:6px; font-size:0.85rem;">
                         Currently assigned: <strong th:text="${currentManager.fullName}">Name</strong>
                         &middot; <span th:text="${currentManager.email}">email</span>

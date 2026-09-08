@@ -73,7 +73,6 @@
         <a class="btn btn-primary btn-sm" th:href="@{/appointments/new(doctorId=${doctor.id})}">+ Book Appointment</a>
     </div>
 
-    <!-- "appointments" model attribute: List<AppointmentResponseDto> for this doctor (Feature 4) -->
     <div class="table-wrapper">
         <table>
             <thead>
@@ -105,7 +104,6 @@
         <a class="btn btn-primary btn-sm" th:href="@{/prescriptions/new(doctorId=${doctor.id})}">+ Issue Prescription</a>
     </div>
 
-    <!-- "prescriptions" model attribute: Page<PrescriptionResponseDto> issued by this doctor (Feature 7) -->
     <div class="table-wrapper">
         <table>
             <thead>
