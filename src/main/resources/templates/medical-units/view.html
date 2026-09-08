@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title=${medicalUnit.name})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="container">
+
+    <div class="page-header">
+        <div>
+            <h1 th:text="${medicalUnit.name}">Unit name</h1>
+            <p class="subtitle">Medical unit details</p>
+        </div>
+        <div class="btn-group">
+            <a class="btn btn-secondary" th:href="@{/medical-units/{id}/edit(id=${medicalUnit.id})}">Edit</a>
+            <a class="btn btn-secondary" th:href="@{/medical-units}">&larr; Back to list</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="detail-grid">
+            <div class="detail-item">
+                <div class="detail-label">Email</div>
+                <div class="detail-value" th:text="${medicalUnit.email}">unit@email.com</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Phone</div>
+                <div class="detail-value" th:text="${medicalUnit.phone}">000-000-000</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Address</div>
+                <div class="detail-value" th:text="${medicalUnit.address}">Address</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Manager</div>
+                <div class="detail-value">
+                    <span th:if="${medicalUnit.managerId != null}" th:text="${medicalUnit.managerFullName}">Manager</span>
+                    <span th:unless="${medicalUnit.managerId != null}" class="badge badge-muted">Unassigned</span>
+                </div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Doctors</div>
+                <div class="detail-value" th:text="${medicalUnit.doctorCount}">0</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-header" style="margin-top: 8px;">
+        <h2 class="section-title" style="border:none;margin:0;">Doctors at this unit</h2>
+        <a class="btn btn-primary btn-sm" th:href="@{/doctors/new(medicalUnitId=${medicalUnit.id})}">+ Add Doctor</a>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>License #</th>
+                <th>Specializations</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="doctor : ${doctors}">
+                <td><a th:href="@{/doctors/{id}(id=${doctor.id})}" th:text="${doctor.doctorFullName}">Dr. Name</a></td>
+                <td th:text="${doctor.email}">doctor@email.com</td>
+                <td th:text="${doctor.licenseNumber}">LIC-000</td>
+                <td>
+                    <div class="badge-list">
+                        <span class="badge" th:each="spec : ${doctor.specializations}" th:text="${spec}">SPEC</span>
+                    </div>
+                </td>
+                <td class="actions-cell">
+                    <a class="btn btn-secondary btn-sm" th:href="@{/doctors/{id}/edit(id=${doctor.id})}">Edit</a>
+                </td>
+            </tr>
+            <tr th:if="${doctors.isEmpty()}">
+                <td colspan="5" class="empty-state">No doctors registered at this unit yet.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

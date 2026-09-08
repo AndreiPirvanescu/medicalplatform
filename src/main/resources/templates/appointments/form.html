@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title='Book Appointment')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="container">
+
+    <div class="page-header">
+        <h1>Book Appointment</h1>
+        <a class="btn btn-secondary" th:href="@{/appointments}">&larr; Back to list</a>
+    </div>
+
+    <div class="alert alert-error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+    <div class="card">
+        <h2 class="section-title mt-0" style="margin-top:0;">1. Choose patient &amp; doctor</h2>
+        <form th:action="@{/appointments/new}" method="get">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="patientId">Patient <span class="required">*</span></label>
+                    <select id="patientId" name="patientId">
+                        <option value="">-- Select a patient --</option>
+                        <option th:each="p : ${allPatients}" th:value="${p.id}"
+                                th:text="${p.firstName + ' ' + p.lastName}"
+                                th:selected="${selectedPatientId != null and selectedPatientId == p.id}">Patient</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="doctorId">Doctor <span class="required">*</span></label>
+                    <select id="doctorId" name="doctorId">
+                        <option value="">-- Select a doctor --</option>
+                        <option th:each="d : ${allDoctors}" th:value="${d.id}" th:text="${d.doctorFullName + ' (' + d.medicalUnitName + ')'}"
+                                th:selected="${selectedDoctorId != null and selectedDoctorId == d.id}">Doctor</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-secondary">Show Availability</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+        <h2 class="section-title mt-0" style="margin-top:0;">2. Choose a time</h2>
+
+        <div th:if="${selectedDoctorId == null}" class="text-muted">
+            Choose a doctor above to see their available time slots.
+        </div>
+
+        <div th:if="${selectedDoctorId != null}">
+            <p class="text-muted" th:if="${availableSlots.isEmpty()}">
+                No open slots in the next 30 days for this doctor -
+                see <a th:href="@{/doctors/{id}/schedule(id=${selectedDoctorId})}">their schedule</a> to add one.
+            </p>
+            <div class="badge-list" th:unless="${availableSlots.isEmpty()}" style="margin-bottom:16px;">
+                <button type="button" class="btn btn-secondary btn-sm" th:each="slot : ${availableSlots}"
+                        th:text="${#temporals.format(slot.startTime, 'dd MMM, HH:mm')} + ' - ' + ${#temporals.format(slot.endTime, 'HH:mm')}"
+                        th:attr="onclick=|document.getElementById('appointmentDateTime').value='${slot.startTime}'|">
+                    Slot
+                </button>
+            </div>
+        </div>
+
+        <form th:action="@{/appointments}" method="post">
+            <input type="hidden" name="patientId" th:value="${selectedPatientId}"/>
+            <input type="hidden" name="doctorId" th:value="${selectedDoctorId}"/>
+            <div class="form-group">
+                <label for="appointmentDateTime">Date &amp; Time <span class="required">*</span></label>
+                <input type="datetime-local" id="appointmentDateTime" name="appointmentDateTime" required/>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" th:disabled="${selectedPatientId == null or selectedDoctorId == null}">
+                    Book Appointment
+                </button>
+            </div>
+        </form>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title='Medications')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="container">
+
+    <div class="page-header">
+        <div>
+            <h1>Medications</h1>
+            <p class="subtitle">Medication catalog. Attach medications to a prescription from the Prescriptions section.</p>
+        </div>
+    </div>
+
+    <div class="filter-bar">
+        <form th:action="@{/medications}" method="get">
+            <div class="field">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" placeholder="Search by name" th:value="${param.name}"/>
+            </div>
+            <div class="field">
+                <button type="submit" class="btn btn-secondary">Filter</button>
+            </div>
+            <div class="field" th:if="${param.name != null}">
+                <a th:href="@{/medications}" class="btn btn-secondary">Clear</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Dosage</th>
+                <th>Description</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="med : ${medications.content}">
+                <td><a th:href="@{/medications/{id}(id=${med.id})}" th:text="${med.name}">Medication</a></td>
+                <td th:text="${med.dosage}">Dosage</td>
+                <td th:text="${med.description}">Description</td>
+                <td class="actions-cell">
+                    <a class="btn btn-secondary btn-sm" th:href="@{/medications/{id}(id=${med.id})}">View</a>
+                </td>
+            </tr>
+            <tr th:if="${medications.content.isEmpty()}">
+                <td colspan="4" class="empty-state">No medications found.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <nav class="pagination" th:if="${medications.totalPages > 1}">
+        <a th:if="${!medications.first}" th:href="@{/medications(page=${medications.number - 1})}">&laquo; Prev</a>
+        <span th:each="i : ${#numbers.sequence(0, medications.totalPages - 1)}">
+            <span th:if="${i == medications.number}" class="current" th:text="${i + 1}">1</span>
+            <a th:unless="${i == medications.number}" th:href="@{/medications(page=${i})}" th:text="${i + 1}">1</a>
+        </span>
+        <a th:if="${!medications.last}" th:href="@{/medications(page=${medications.number + 1})}">Next &raquo;</a>
+    </nav>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title='Prescription Details')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="container">
+
+    <div class="page-header">
+        <h1>Prescription</h1>
+        <div class="btn-group">
+            <a class="btn btn-secondary" th:href="@{/prescriptions/{id}/edit(id=${prescription.id})}">Edit</a>
+            <a class="btn btn-secondary" th:href="@{/prescriptions}">&larr; Back to list</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="detail-grid">
+            <div class="detail-item">
+                <div class="detail-label">Issued</div>
+                <div class="detail-value" th:text="${#temporals.format(prescription.issueDate, 'dd MMM yyyy, HH:mm')}">01 Jan 2026, 10:00</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Patient</div>
+                <div class="detail-value">
+                    <a th:href="@{/patients/{id}(id=${prescription.patientId})}" th:text="${prescription.patientFullName}">Patient</a>
+                </div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Doctor</div>
+                <div class="detail-value">
+                    <a th:href="@{/doctors/{id}(id=${prescription.doctorId})}" th:text="${prescription.doctorFullName}">Doctor</a>
+                </div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Linked Appointment</div>
+                <div class="detail-value">
+                    <a th:if="${prescription.appointmentId != null}" th:href="@{/appointments/{id}(id=${prescription.appointmentId})}">View appointment</a>
+                    <span th:unless="${prescription.appointmentId != null}" class="text-muted">None</span>
+                </div>
+            </div>
+            <div class="detail-item full-width" th:if="${prescription.notes != null and !prescription.notes.isEmpty()}">
+                <div class="detail-label">Notes</div>
+                <div class="detail-value" th:text="${prescription.notes}" style="white-space: pre-wrap;">Notes</div>
+            </div>
+        </div>
+    </div>
+
+    <h2 class="section-title">Medications</h2>
+    <div class="card">
+        <div class="table-wrapper" th:unless="${prescription.medications.isEmpty()}">
+            <table>
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Dosage</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="med : ${prescription.medications}">
+                    <td th:text="${med.name}">Medication</td>
+                    <td th:text="${med.dosage}">Dosage</td>
+                    <td class="actions-cell">
+                        <form th:action="@{/prescriptions/{id}/medications/{medId}/delete(id=${prescription.id}, medId=${med.id})}"
+                              method="post" onsubmit="return confirm('Remove this medication?');">
+                            <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="text-muted" th:if="${prescription.medications.isEmpty()}">No medications on this prescription.</p>
+
+        <form th:action="@{/prescriptions/{id}/medications(id=${prescription.id})}" method="post" style="margin-top:16px;">
+            <div style="display:flex; gap:8px; align-items:end;">
+                <div class="form-group" style="margin-bottom:0;">
+                    <label for="medicationId">Add a medication</label>
+                    <select id="medicationId" name="medicationId">
+                        <option th:each="med : ${allMedications}" th:value="${med.id}" th:text="${med.name} + ' (' + ${med.dosage} + ')'">Medication</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm">Add</button>
+            </div>
+        </form>
+    </div>
+
+    <form th:action="@{/prescriptions/{id}/delete(id=${prescription.id})}" method="post"
+          onsubmit="return confirm('Delete this prescription entirely?');" style="margin-top:16px;">
+        <button type="submit" class="btn btn-danger">Delete Prescription</button>
+    </form>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

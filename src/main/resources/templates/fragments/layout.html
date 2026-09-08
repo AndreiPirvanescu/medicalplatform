@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${title} + ' | MediCare Platform'">MediCare Platform</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+
+<header class="site-header" th:fragment="header">
+    <div class="container header-inner">
+        <a th:href="@{/}" class="brand">Medi<span>Care</span></a>
+        <nav class="main-nav">
+            <a th:href="@{/medical-units}">Medical Units</a>
+            <a th:href="@{/doctors}">Doctors</a>
+            <a th:href="@{/patients}">Patients</a>
+            <a th:href="@{/appointments}">Appointments</a>
+            <a th:href="@{/prescriptions}">Prescriptions</a>
+            <a th:href="@{/medications}">Medications</a>
+            <a th:href="@{/admin/dashboard}">Admin</a>
+        </nav>
+    </div>
+</header>
+
+<div class="container" th:fragment="alerts">
+    <div class="alert alert-success" th:if="${successMessage}" th:text="${successMessage}"></div>
+    <div class="alert alert-error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+</div>
+
+<footer class="site-footer" th:fragment="footer">
+    <div class="container">
+        <p>MediCare Platform</p>
+    </div>
+</footer>
+
+</body>
+</html>

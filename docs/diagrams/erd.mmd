@@ -1,0 +1,89 @@
+erDiagram
+  Role }|--o{ User : has
+  User ||--|| MedicalUnit : manages
+  User ||--|| Doctor : is
+  User ||--|| Patient : is
+  MedicalUnit ||--o{ Doctor : employs
+  Doctor ||--o{ Appointment : attends
+  Patient ||--o{ Appointment : books
+  Doctor ||--o{ Schedule : defines
+  Patient ||--|| MedicalRecord : has
+  Doctor ||--o{ Prescription : issues
+  Patient ||--o{ Prescription : receives
+  Prescription }o--o{ Medication : includes
+  Appointment |o--o{ Prescription : generates
+
+  Role {
+    Long id PK
+    String name
+  }
+  User {
+    Long id PK
+    String firstName
+    String lastName
+    String username
+    String password
+    String email
+    String phone
+    Boolean accountNonExpired
+    Boolean accountNonLocked
+    Boolean credentialsNonExpired
+    Boolean enabled
+    Long roleId FK
+  }
+  MedicalUnit {
+    Long id PK
+    String name
+    String email
+    String phone
+    String address
+    Long managerId FK
+  }
+  Doctor {
+    Long id PK
+    Long userId FK
+    Long medicalUnitId FK
+    String specializations
+    String licenseNumber
+    String bio
+  }
+  Patient {
+    Long id PK
+    Long userId FK
+    Date dateOfBirth
+    String bloodType
+  }
+  Appointment {
+    Long id PK
+    LocalDateTime date
+    String status
+    Long patientId FK
+    Long doctorId FK
+  }
+  Schedule {
+    Long id PK
+    LocalDateTime startTime
+    LocalDateTime endTime
+    Boolean available
+    Long doctorId FK
+  }
+  MedicalRecord {
+    Long id PK
+    Long patientId FK
+    LocalDateTime createdDate
+    String notes
+  }
+  Prescription {
+    Long id PK
+    Long patientId FK
+    Long doctorId FK
+    Long appointmentId FK
+    LocalDateTime issueDate
+    String notes
+  }
+  Medication {
+    Long id PK
+    String name
+    String dosage
+    String description
+  }

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title=${doctor.doctorFullName} + ' - Schedule')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="container">
+
+    <div class="page-header">
+        <div>
+            <h1 th:text="'Schedule for ' + ${doctor.doctorFullName}">Doctor's Schedule</h1>
+            <p class="subtitle" th:text="${doctor.medicalUnitName}">Unit</p>
+        </div>
+        <a class="btn btn-secondary" th:href="@{/doctors/{id}(id=${doctor.id})}">&larr; Back to doctor</a>
+    </div>
+
+    <div class="alert alert-error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+            <tr>
+                <th>Start</th>
+                <th>End</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="slot : ${slots}">
+                <td th:text="${#temporals.format(slot.startTime, 'dd MMM yyyy, HH:mm')}">01 Jan 2026, 09:00</td>
+                <td th:text="${#temporals.format(slot.endTime, 'dd MMM yyyy, HH:mm')}">01 Jan 2026, 09:30</td>
+                <td>
+                    <span class="badge badge-success" th:if="${slot.available}">Available</span>
+                    <span class="badge badge-muted" th:unless="${slot.available}">Booked</span>
+                </td>
+                <td class="actions-cell">
+                    <div class="btn-group">
+                        <a class="btn btn-secondary btn-sm" th:href="@{/schedules/{id}/edit(id=${slot.id}, doctorId=${doctor.id})}">Edit</a>
+                        <form th:action="@{/schedules/{id}/delete(id=${slot.id})}" method="post"
+                              onsubmit="return confirm('Remove this time slot?');">
+                            <input type="hidden" name="doctorId" th:value="${doctor.id}"/>
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${slots.isEmpty()}">
+                <td colspan="4" class="empty-state">No time slots defined yet.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h2 class="section-title">Add a Time Slot</h2>
+    <div class="card">
+        <form th:action="@{/doctors/{doctorId}/schedule(doctorId=${doctor.id})}" method="post">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="startTime">Start <span class="required">*</span></label>
+                    <input type="datetime-local" id="startTime" name="startTime" required/>
+                </div>
+                <div class="form-group">
+                    <label for="endTime">End <span class="required">*</span></label>
+                    <input type="datetime-local" id="endTime" name="endTime" required/>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Add Slot</button>
+            </div>
+        </form>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

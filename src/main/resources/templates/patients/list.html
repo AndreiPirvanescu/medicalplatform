@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title='Patients')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="container">
+
+    <div class="page-header">
+        <div>
+            <h1>Patients</h1>
+            <p class="subtitle">Registered patients on the platform.</p>
+        </div>
+        <a class="btn btn-primary" th:href="@{/patients/new}">+ Register Patient</a>
+    </div>
+
+    <div class="filter-bar">
+        <form th:action="@{/patients}" method="get">
+            <div class="field">
+                <label for="firstName">First name</label>
+                <input type="text" id="firstName" name="firstName" th:value="${param.firstName}"/>
+            </div>
+            <div class="field">
+                <label for="lastName">Last name</label>
+                <input type="text" id="lastName" name="lastName" th:value="${param.lastName}"/>
+            </div>
+            <div class="field">
+                <button type="submit" class="btn btn-secondary">Filter</button>
+            </div>
+            <div class="field" th:if="${param.firstName != null or param.lastName != null}">
+                <a th:href="@{/patients}" class="btn btn-secondary">Clear</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Date of Birth</th>
+                <th>Blood Type</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="patient : ${patients.content}">
+                <td>
+                    <a th:href="@{/patients/{id}(id=${patient.id})}"
+                       th:text="${patient.firstName + ' ' + patient.lastName}">Patient name</a>
+                </td>
+                <td th:text="${patient.email}">patient@email.com</td>
+                <td th:text="${patient.phone}">000-000-000</td>
+                <td th:text="${#temporals.format(patient.dateOfBirth, 'dd MMM yyyy')}">01 Jan 1990</td>
+                <td><span class="badge" th:text="${patient.bloodType}">O+</span></td>
+                <td class="actions-cell">
+                    <div class="btn-group">
+                        <a class="btn btn-secondary btn-sm" th:href="@{/patients/{id}(id=${patient.id})}">View</a>
+                        <a class="btn btn-secondary btn-sm" th:href="@{/patients/{id}/edit(id=${patient.id})}">Edit</a>
+                        <form th:action="@{/patients/{id}/delete(id=${patient.id})}" method="post"
+                              onsubmit="return confirm('Delete this patient?');">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${patients.content.isEmpty()}">
+                <td colspan="6" class="empty-state">No patients found.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <nav class="pagination" th:if="${patients.totalPages > 1}">
+        <a th:if="${!patients.first}" th:href="@{/patients(page=${patients.number - 1})}">&laquo; Prev</a>
+        <span th:each="i : ${#numbers.sequence(0, patients.totalPages - 1)}">
+            <span th:if="${i == patients.number}" class="current" th:text="${i + 1}">1</span>
+            <a th:unless="${i == patients.number}" th:href="@{/patients(page=${i})}" th:text="${i + 1}">1</a>
+        </span>
+        <a th:if="${!patients.last}" th:href="@{/patients(page=${patients.number + 1})}">Next &raquo;</a>
+    </nav>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

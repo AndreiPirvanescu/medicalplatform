@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title=${medication.name})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="container">
+
+    <div class="page-header">
+        <h1 th:text="${medication.name}">Medication</h1>
+        <a class="btn btn-secondary" th:href="@{/medications}">&larr; Back to list</a>
+    </div>
+
+    <div class="card">
+        <div class="detail-grid">
+            <div class="detail-item">
+                <div class="detail-label">Dosage</div>
+                <div class="detail-value" th:text="${medication.dosage}">Dosage</div>
+            </div>
+            <div class="detail-item full-width">
+                <div class="detail-label">Description</div>
+                <div class="detail-value" th:text="${medication.description}">Description</div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

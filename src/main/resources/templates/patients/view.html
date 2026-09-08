@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title=${patient.firstName + ' ' + patient.lastName})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="container">
+
+    <div class="page-header">
+        <h1 th:text="${patient.firstName + ' ' + patient.lastName}">Patient name</h1>
+        <div class="btn-group">
+            <a class="btn btn-secondary" th:href="@{/patients/{id}/medical-record(id=${patient.id})}">Medical Record</a>
+            <a class="btn btn-secondary" th:href="@{/patients/{id}/medication-history(id=${patient.id})}">Medication History</a>
+            <a class="btn btn-secondary" th:href="@{/patients/{id}/edit(id=${patient.id})}">Edit</a>
+            <a class="btn btn-secondary" th:href="@{/patients}">&larr; Back to list</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="detail-grid">
+            <div class="detail-item">
+                <div class="detail-label">Email</div>
+                <div class="detail-value" th:text="${patient.email}">patient@email.com</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Phone</div>
+                <div class="detail-value" th:text="${patient.phone}">000-000-000</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Date of Birth</div>
+                <div class="detail-value" th:text="${#temporals.format(patient.dateOfBirth, 'dd MMM yyyy')}">01 Jan 1990</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Blood Type</div>
+                <div class="detail-value"><span class="badge" th:text="${patient.bloodType}">O+</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-header" style="margin-top:8px;">
+        <h2 class="section-title" style="border:none;margin:0;">Appointments</h2>
+        <a class="btn btn-primary btn-sm" th:href="@{/appointments/new(patientId=${patient.id})}">+ Book Appointment</a>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+            <tr>
+                <th>Date &amp; Time</th>
+                <th>Doctor</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="appt : ${appointments}">
+                <td th:text="${#temporals.format(appt.appointmentDateTime, 'dd MMM yyyy, HH:mm')}">01 Jan 2026, 10:00</td>
+                <td><a th:href="@{/doctors/{id}(id=${appt.doctorId})}" th:text="${appt.doctorFullName}">Doctor</a></td>
+                <td><span class="badge" th:text="${appt.status}">STATUS</span></td>
+                <td class="actions-cell">
+                    <a class="btn btn-secondary btn-sm" th:href="@{/appointments/{id}(id=${appt.id})}">View</a>
+                </td>
+            </tr>
+            <tr th:if="${appointments.isEmpty()}">
+                <td colspan="4" class="empty-state">No appointments yet.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="page-header" style="margin-top:8px;">
+        <h2 class="section-title" style="border:none;margin:0;">Prescriptions</h2>
+        <a class="btn btn-primary btn-sm" th:href="@{/prescriptions/new(patientId=${patient.id})}">+ Issue Prescription</a>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+            <tr>
+                <th>Issued</th>
+                <th>Doctor</th>
+                <th>Medications</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="rx : ${prescriptions}">
+                <td th:text="${#temporals.format(rx.issueDate, 'dd MMM yyyy, HH:mm')}">01 Jan 2026, 10:00</td>
+                <td><a th:href="@{/doctors/{id}(id=${rx.doctorId})}" th:text="${rx.doctorFullName}">Doctor</a></td>
+                <td>
+                    <div class="badge-list">
+                        <span class="badge" th:each="med : ${rx.medications}" th:text="${med.name}">Medication</span>
+                        <span th:if="${rx.medications.isEmpty()}" class="text-muted">None</span>
+                    </div>
+                </td>
+                <td class="actions-cell">
+                    <a class="btn btn-secondary btn-sm" th:href="@{/prescriptions/{id}(id=${rx.id})}">View</a>
+                </td>
+            </tr>
+            <tr th:if="${prescriptions.isEmpty()}">
+                <td colspan="4" class="empty-state">No prescriptions yet.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

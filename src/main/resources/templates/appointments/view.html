@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title='Appointment Details')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="container">
+
+    <div class="page-header">
+        <h1>Appointment</h1>
+        <div class="btn-group">
+            <a class="btn btn-secondary" th:href="@{/prescriptions/new(patientId=${appointment.patientId}, doctorId=${appointment.doctorId}, appointmentId=${appointment.id})}">Issue Prescription</a>
+            <a class="btn btn-secondary" th:href="@{/appointments/{id}/edit(id=${appointment.id})}">Edit</a>
+            <a class="btn btn-secondary" th:href="@{/appointments}">&larr; Back to list</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="detail-grid">
+            <div class="detail-item">
+                <div class="detail-label">Date &amp; Time</div>
+                <div class="detail-value" th:text="${#temporals.format(appointment.appointmentDateTime, 'dd MMM yyyy, HH:mm')}">01 Jan 2026, 10:00</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Status</div>
+                <div class="detail-value"><span class="badge" th:text="${appointment.status}">STATUS</span></div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Patient</div>
+                <div class="detail-value">
+                    <a th:href="@{/patients/{id}(id=${appointment.patientId})}" th:text="${appointment.patientFullName}">Patient</a>
+                </div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Doctor</div>
+                <div class="detail-value">
+                    <a th:href="@{/doctors/{id}(id=${appointment.doctorId})}" th:text="${appointment.doctorFullName}">Doctor</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form th:action="@{/appointments/{id}/delete(id=${appointment.id})}" method="post"
+          onsubmit="return confirm('Cancel this appointment?');" style="margin-top:16px;">
+        <button type="submit" class="btn btn-danger">Cancel Appointment</button>
+    </form>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

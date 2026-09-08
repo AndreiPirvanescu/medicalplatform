@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title='Create Medical Record')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="container">
+
+    <div class="page-header">
+        <h1 th:text="'Create Medical Record - ' + ${patient.firstName} + ' ' + ${patient.lastName}">Create Medical Record</h1>
+        <a class="btn btn-secondary" th:href="@{/patients/{id}(id=${patient.id})}">&larr; Back to patient</a>
+    </div>
+
+    <div class="card">
+        <form th:action="@{/patients/{id}/medical-record(id=${patient.id})}" method="post">
+            <div class="form-group full-width">
+                <label for="notes">Initial Notes</label>
+                <textarea id="notes" name="notes" rows="6" style="width:100%;"></textarea>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Create Medical Record</button>
+                <a class="btn btn-secondary" th:href="@{/patients/{id}(id=${patient.id})}">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

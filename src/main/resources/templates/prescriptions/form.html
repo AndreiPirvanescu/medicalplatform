@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(title='Issue Prescription')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="container">
+
+    <div class="page-header">
+        <h1>Issue Prescription</h1>
+        <a class="btn btn-secondary" th:href="@{/prescriptions}">&larr; Back to list</a>
+    </div>
+
+    <div class="alert alert-error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+    <div class="card">
+        <h2 class="section-title mt-0" style="margin-top:0;">1. Choose patient &amp; doctor</h2>
+        <form th:action="@{/prescriptions/new}" method="get">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="patientId">Patient <span class="required">*</span></label>
+                    <select id="patientId" name="patientId">
+                        <option value="">-- Select a patient --</option>
+                        <option th:each="p : ${allPatients}" th:value="${p.id}"
+                                th:text="${p.firstName + ' ' + p.lastName}"
+                                th:selected="${selectedPatientId != null and selectedPatientId == p.id}">Patient</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="doctorId">Doctor <span class="required">*</span></label>
+                    <select id="doctorId" name="doctorId">
+                        <option value="">-- Select a doctor --</option>
+                        <option th:each="d : ${allDoctors}" th:value="${d.id}" th:text="${d.doctorFullName}"
+                                th:selected="${selectedDoctorId != null and selectedDoctorId == d.id}">Doctor</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-secondary">Continue</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+        <h2 class="section-title mt-0" style="margin-top:0;">2. Prescription details</h2>
+
+        <form th:action="@{/prescriptions}" method="post">
+            <input type="hidden" name="patientId" th:value="${selectedPatientId}"/>
+            <input type="hidden" name="doctorId" th:value="${selectedDoctorId}"/>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="appointmentId">Linked Appointment (optional)</label>
+                    <select id="appointmentId" name="appointmentId">
+                        <option value="">-- None --</option>
+                        <option th:each="a : ${patientAppointments}" th:value="${a.id}"
+                                th:text="${#temporals.format(a.appointmentDateTime, 'dd MMM yyyy, HH:mm')} + ' with ' + ${a.doctorFullName}"
+                                th:selected="${selectedAppointmentId != null and selectedAppointmentId == a.id}">Appointment</option>
+                    </select>
+                    <p class="text-muted" th:if="${selectedPatientId == null}" style="margin:4px 0 0;">Choose a patient above to see their appointments.</p>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="notes">Notes</label>
+                    <textarea id="notes" name="notes" rows="4" style="width:100%;"></textarea>
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Medications <span class="required">*</span></label>
+                    <div class="checkbox-grid">
+                        <div class="checkbox-item" th:each="med : ${allMedications}">
+                            <input type="checkbox" th:id="${'med-' + med.id}" name="medicationIds" th:value="${med.id}"/>
+                            <label th:for="${'med-' + med.id}" style="font-weight:400;" th:text="${med.name} + ' (' + ${med.dosage} + ')'">Medication</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" th:disabled="${selectedPatientId == null or selectedDoctorId == null}">
+                    Issue Prescription
+                </button>
+            </div>
+        </form>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
